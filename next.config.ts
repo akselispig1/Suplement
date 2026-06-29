@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {},
+  // Stripe webhook needs raw body
+  serverExternalPackages: [],
 };
 
 export default nextConfig;
