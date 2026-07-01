@@ -49,6 +49,6 @@ export type Order = {
   }[];
   totalCHF: number;
   stripeSessionId: string;
-  status: "to_ship" | "shipped" | "cancelled";
+  status: "awaiting_payment" | "to_ship" | "shipped" | "cancelled";
   createdAt: string;
 };
