@@ -19,6 +19,7 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
           <Link href="/products" className="hover:text-green-700 transition-colors">Shop</Link>
           <Link href="/survey" className="hover:text-green-700 transition-colors">Find My Stack</Link>
+          <Link href="/about" className="hover:text-green-700 transition-colors">About</Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -40,6 +41,7 @@ export default function Navbar() {
         <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-3 text-sm font-medium text-gray-700">
           <Link href="/products" className="block hover:text-green-700" onClick={() => setOpen(false)}>Shop All</Link>
           <Link href="/survey" className="block hover:text-green-700" onClick={() => setOpen(false)}>Find My Stack</Link>
+          <Link href="/about" className="block hover:text-green-700" onClick={() => setOpen(false)}>About</Link>
         </div>
       )}
     </header>
