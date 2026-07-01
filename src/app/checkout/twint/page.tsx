@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { CheckCircle, Copy } from "lucide-react";
 
-const TWINT_NUMBER = process.env.NEXT_PUBLIC_TWINT_NUMBER || "+41 79 000 00 00";
+const TWINT_NUMBER = process.env.NEXT_PUBLIC_TWINT_NUMBER || "+41 77 464 77 58";
 
 function TwintContent() {
   const params = useSearchParams();
