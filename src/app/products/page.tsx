@@ -3,21 +3,31 @@ import { useState, useMemo } from "react";
 import { products } from "@/data/catalog";
 import ProductCard from "@/components/ProductCard";
 import { EvidenceLegend } from "@/components/EvidenceBadge";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import { EvidenceStrength } from "@/types/product";
 
 const ALL_CATEGORIES = [...new Set(products.map((p) => p.category))].sort();
 const ALL_GOALS = [...new Set(products.flatMap((p) => p.goals))].sort();
 
+const EVIDENCE_RANK: Record<EvidenceStrength, number> = { strong: 0, moderate: 1, emerging: 2 };
+
+type SortKey = "recommended" | "price-asc" | "price-desc" | "name";
+const SORTS: { value: SortKey; label: string }[] = [
+  { value: "recommended", label: "Recommended" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+  { value: "name", label: "Name: A–Z" },
+];
+
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<string | null>(null);
-  const [goal, setGoal] = useState<string | null>(null);
-  const [evidence, setEvidence] = useState<EvidenceStrength | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
+  const [category, setCategory] = useState("");
+  const [goal, setGoal] = useState("");
+  const [evidence, setEvidence] = useState("");
+  const [sort, setSort] = useState<SortKey>("recommended");
 
   const filtered = useMemo(() => {
-    let list = products;
+    let list = [...products];
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -30,17 +40,28 @@ export default function ProductsPage() {
     if (category) list = list.filter((p) => p.category === category);
     if (goal) list = list.filter((p) => p.goals.includes(goal));
     if (evidence) list = list.filter((p) => p.evidenceStrength === evidence);
+
+    list.sort((a, b) => {
+      switch (sort) {
+        case "price-asc": return a.priceCHF - b.priceCHF;
+        case "price-desc": return b.priceCHF - a.priceCHF;
+        case "name": return a.name.localeCompare(b.name);
+        default:
+          return EVIDENCE_RANK[a.evidenceStrength] - EVIDENCE_RANK[b.evidenceStrength] || a.name.localeCompare(b.name);
+      }
+    });
     return list;
-  }, [search, category, goal, evidence]);
+  }, [search, category, goal, evidence, sort]);
 
   function clearFilters() {
     setSearch("");
-    setCategory(null);
-    setGoal(null);
-    setEvidence(null);
+    setCategory("");
+    setGoal("");
+    setEvidence("");
+    setSort("recommended");
   }
 
-  const hasFilters = search || category || goal || evidence;
+  const hasFilters = search || category || goal || evidence || sort !== "recommended";
 
   return (
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -51,9 +72,9 @@ export default function ProductsPage() {
         <EvidenceLegend />
       </div>
 
-      {/* Search + filter bar */}
-      <div className="relative flex gap-3 mb-6 flex-wrap">
-        <div className="relative flex-1 min-w-64">
+      {/* Toolbar: search + sorted dropdowns */}
+      <div className="relative glass rounded-2xl p-3 mb-6 flex flex-col md:flex-row md:items-center gap-3">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <input
             type="text"
@@ -63,40 +84,24 @@ export default function ProductsPage() {
             className="field w-full pl-9 pr-4 py-2.5 rounded-xl text-sm"
           />
         </div>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${showFilters ? "btn-primary" : "btn-ghost"}`}
-        >
-          <SlidersHorizontal className="w-4 h-4" /> Filters
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Dropdown label="Category" value={category} onChange={setCategory} options={ALL_CATEGORIES} />
+          <Dropdown label="Goal" value={goal} onChange={setGoal} options={ALL_GOALS} capitalize />
+          <Dropdown label="Evidence" value={evidence} onChange={setEvidence} options={["strong", "moderate", "emerging"]} capitalize />
+          <Dropdown label="Sort" value={sort} onChange={(v) => setSort(v as SortKey)} options={SORTS} noAll />
+        </div>
+      </div>
+
+      {/* Active filter row */}
+      <div className="relative flex items-center gap-3 mb-6 flex-wrap">
+        <p className="text-sm text-white/40 font-mono">{filtered.length} products</p>
         {hasFilters && (
-          <button onClick={clearFilters} className="flex items-center gap-1 px-3 py-2.5 text-sm text-white/50 hover:text-white transition-colors">
-            <X className="w-4 h-4" /> Clear
+          <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors">
+            <X className="w-3.5 h-3.5" /> Clear filters
           </button>
         )}
       </div>
 
-      {showFilters && (
-        <div className="relative glass rounded-2xl p-5 mb-6 grid grid-cols-1 md:grid-cols-3 gap-5 fade-up">
-          <FilterGroup label="Category">
-            {ALL_CATEGORIES.map((c) => (
-              <FilterChip key={c} active={category === c} onClick={() => setCategory(category === c ? null : c)}>{c}</FilterChip>
-            ))}
-          </FilterGroup>
-          <FilterGroup label="Goal">
-            {ALL_GOALS.map((g) => (
-              <FilterChip key={g} active={goal === g} onClick={() => setGoal(goal === g ? null : g)} className="capitalize">{g}</FilterChip>
-            ))}
-          </FilterGroup>
-          <FilterGroup label="Evidence">
-            {(["strong", "moderate", "emerging"] as EvidenceStrength[]).map((e) => (
-              <FilterChip key={e} active={evidence === e} onClick={() => setEvidence(evidence === e ? null : e)} className="capitalize">{e}</FilterChip>
-            ))}
-          </FilterGroup>
-        </div>
-      )}
-
-      <p className="relative text-sm text-white/40 mb-4 font-mono">{filtered.length} products</p>
       <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {filtered.map((p) => (
           <ProductCard key={p.id} product={p} />
@@ -112,24 +117,33 @@ export default function ProductsPage() {
   );
 }
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function Dropdown({
+  label, value, onChange, options, capitalize, noAll,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[] | { value: string; label: string }[];
+  capitalize?: boolean;
+  noAll?: boolean;
+}) {
+  const opts = options.map((o) => (typeof o === "string" ? { value: o, label: o } : o));
+  const active = value && (!noAll ? true : true);
   return (
-    <div>
-      <label className="block eyebrow text-white/40 mb-2">{label}</label>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`field appearance-none rounded-xl pl-3.5 pr-9 py-2.5 text-sm cursor-pointer ${capitalize ? "capitalize" : ""} ${active && value ? "!border-emerald-500/50 text-white" : "text-white/70"}`}
+      >
+        {!noAll && <option value="">{label}: All</option>}
+        {opts.map((o) => (
+          <option key={o.value} value={o.value} className="bg-[#0b0d12] text-white">
+            {noAll ? o.label : o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
     </div>
-  );
-}
-
-function FilterChip({ active, onClick, children, className = "" }: { active: boolean; onClick: () => void; children: React.ReactNode; className?: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${className} ${
-        active ? "bg-gradient-to-r from-emerald-400 to-cyan-400 text-[#04120f]" : "bg-white/5 text-white/70 border border-white/10 hover:bg-white/10"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

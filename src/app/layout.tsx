@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
+import { LogoMark } from "@/components/Logo";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -22,9 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-sm text-[var(--muted)]">
                 <div>
-                  <div className="font-bold text-white text-lg mb-2 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_2px_rgba(16,185,129,0.8)]" />
-                    SuppStack
+                  <div className="font-bold text-white text-lg mb-3 flex items-center gap-2">
+                    <LogoMark className="w-7 h-7" />
+                    Supp<span className="gradient-text">Stack</span>
                   </div>
                   <p className="leading-relaxed">Science-backed supplements, shipped as one package. No fillers, no fluff.</p>
                 </div>

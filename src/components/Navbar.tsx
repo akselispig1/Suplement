@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const { count } = useCart();
@@ -11,12 +12,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050609]/70 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        <Link href="/" className="flex items-center gap-2.5 font-bold text-lg text-white">
-          <span className="relative flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-[0_0_16px_-2px_rgba(16,185,129,0.8)]">
-            <span className="text-[#04120f] font-black text-sm">S</span>
-          </span>
-          <span className="tracking-tight">SuppStack</span>
-        </Link>
+        <Logo />
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[var(--muted)]">
           <Link href="/products" className="hover:text-white transition-colors">Shop</Link>
