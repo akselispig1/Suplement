@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050609;
+  --foreground: #ededf2;
+  --muted: #8b8ba7;
+  --accent: #10b981;
+  --accent-2: #06b6d4;
+  --border: rgba(255, 255, 255, 0.08);
 }
 
 @theme inline {
@@ -12,15 +16,121 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ---- Futuristic design system ---- */
+
+/* Subtle blueprint grid */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+
+/* Radial accent glow */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.glow-emerald { background: radial-gradient(circle, rgba(16, 185, 129, 0.55), transparent 70%); }
+.glow-cyan { background: radial-gradient(circle, rgba(6, 182, 212, 0.45), transparent 70%); }
+
+/* Glassmorphism surface */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+.glass-hover {
+  transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.glass-hover:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1), 0 20px 50px -20px rgba(16, 185, 129, 0.35);
+}
+
+/* Gradient clipped text */
+.gradient-text {
+  background: linear-gradient(120deg, #34d399 0%, #22d3ee 55%, #818cf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Primary gradient button */
+.btn-primary {
+  background: linear-gradient(120deg, #10b981, #06b6d4);
+  color: #04120f;
+  font-weight: 600;
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 8px 30px -8px rgba(16, 185, 129, 0.6);
+}
+.btn-primary:hover { filter: brightness(1.08); box-shadow: 0 10px 40px -8px rgba(16, 185, 129, 0.8); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: 0.5; box-shadow: none; }
+
+/* Ghost button */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); }
+
+/* Mono eyebrow label */
+.eyebrow {
+  font-family: var(--font-geist-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+/* Fade-up entrance */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.6s ease both; }
+
+/* Slow pulse for glows */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.65; }
+}
+.glow-pulse { animation: glowPulse 6s ease-in-out infinite; }
+
+/* Inputs */
+.field {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field::placeholder { color: rgba(255, 255, 255, 0.28); }
+.field:focus {
+  outline: none;
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Thin custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #050609; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }

@@ -111,21 +111,21 @@ export default function AdminProductsPage() {
     });
   }
 
-  if (loading) return <div className="p-10 text-center text-gray-400">Loading products…</div>;
+  if (loading) return <div className="p-10 text-center text-white/40">Loading products…</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Product Manager</h1>
-          <p className="text-gray-500 text-sm mt-1">{products.length} products</p>
+          <h1 className="text-3xl font-bold text-white">Product Manager</h1>
+          <p className="text-white/50 text-sm mt-1">{products.length} products</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin/orders" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 px-4 py-2 border border-gray-200 rounded-xl bg-white">
+          <Link href="/admin/orders" className="flex items-center gap-2 text-sm text-white/50 hover:text-white/80 px-4 py-2 border border-white/10 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur">
             <Package className="w-4 h-4" /> Orders
           </Link>
-          <button onClick={load} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 px-4 py-2 border border-gray-200 rounded-xl bg-white">
+          <button onClick={load} className="flex items-center gap-2 text-sm text-white/50 hover:text-white/80 px-4 py-2 border border-white/10 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur">
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
           <button
@@ -139,19 +139,19 @@ export default function AdminProductsPage() {
 
       {/* Search */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or category…"
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full pl-9 pr-4 py-2.5 border border-white/10 rounded-xl text-sm bg-white/[0.03] border border-white/10 backdrop-blur focus:outline-none focus:ring-2 focus:ring-green-500"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="bg-white/[0.03] border border-white/10 backdrop-blur rounded-2xl border border-white/10 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+          <thead className="bg-white/[0.03] border border-white/10 backdrop-blur/5 text-white/50 text-xs uppercase tracking-wide">
             <tr>
               <th className="px-4 py-3 text-left">Product</th>
               <th className="px-4 py-3 text-left">Category</th>
@@ -163,7 +163,7 @@ export default function AdminProductsPage() {
           </thead>
           <tbody>
             {filtered.map((p) => (
-              <tr key={p.id} className="border-t border-gray-50 hover:bg-gray-50/50">
+              <tr key={p.id} className="border-t border-white/5 hover:bg-white/[0.03] border border-white/10 backdrop-blur/5/50">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-green-50 overflow-hidden flex items-center justify-center shrink-0">
@@ -174,13 +174,13 @@ export default function AdminProductsPage() {
                       )}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">{p.name}</div>
-                      <div className="text-xs text-gray-400">{p.id} · {p.form}</div>
+                      <div className="font-medium text-white">{p.name}</div>
+                      <div className="text-xs text-white/40">{p.id} · {p.form}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{p.category}</td>
-                <td className="px-4 py-3 text-right font-semibold text-gray-900">{p.priceCHF.toFixed(2)}</td>
+                <td className="px-4 py-3 text-white/60">{p.category}</td>
+                <td className="px-4 py-3 text-right font-semibold text-white">{p.priceCHF.toFixed(2)}</td>
                 <td className="px-4 py-3 text-center">
                   <span className={`inline-block w-2 h-2 rounded-full ${p.inStock ? "bg-green-500" : "bg-red-400"}`} />
                 </td>
@@ -191,14 +191,14 @@ export default function AdminProductsPage() {
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => { setEditing({ ...p }); setIsNew(false); }}
-                      className="p-1.5 text-gray-400 hover:text-green-600 transition-colors"
+                      className="p-1.5 text-white/40 hover:text-green-600 transition-colors"
                       title="Edit"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeleteId(p.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-1.5 text-white/40 hover:text-red-500 transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -210,7 +210,7 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="py-16 text-center text-gray-400">No products found</div>
+          <div className="py-16 text-center text-white/40">No products found</div>
         )}
       </div>
 
@@ -218,10 +218,10 @@ export default function AdminProductsPage() {
       {editing && (
         <div className="fixed inset-0 z-50 flex">
           <div className="flex-1 bg-black/40" onClick={() => setEditing(null)} />
-          <div className="w-full max-w-xl bg-white shadow-2xl overflow-y-auto flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900">{isNew ? "Add Product" : "Edit Product"}</h2>
-              <button onClick={() => setEditing(null)} className="text-gray-400 hover:text-gray-600">
+          <div className="w-full max-w-xl bg-white/[0.03] border border-white/10 backdrop-blur shadow-2xl overflow-y-auto flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <h2 className="text-lg font-bold text-white">{isNew ? "Add Product" : "Edit Product"}</h2>
+              <button onClick={() => setEditing(null)} className="text-white/40 hover:text-white/60">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -229,9 +229,9 @@ export default function AdminProductsPage() {
             <div className="flex-1 px-6 py-5 space-y-5">
               {/* Image */}
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Product Image</label>
+                <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Product Image</label>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-xl bg-green-50 overflow-hidden flex items-center justify-center border border-gray-100">
+                  <div className="w-20 h-20 rounded-xl bg-green-50 overflow-hidden flex items-center justify-center border border-white/10">
                     {editing.imageUrl && editing.imageUrl.startsWith("/images") ? (
                       <Image src={editing.imageUrl} alt={editing.name ?? ""} width={80} height={80} className="object-cover w-full h-full" />
                     ) : (
@@ -243,13 +243,13 @@ export default function AdminProductsPage() {
                     <button
                       onClick={() => { setUploadTarget(editing.slug || editing.id || "new"); fileRef.current?.click(); }}
                       disabled={uploadingId !== null}
-                      className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                      className="flex items-center gap-2 border border-white/10 rounded-xl px-3 py-2 text-sm font-medium text-white/60 hover:bg-white/[0.03] border border-white/10 backdrop-blur/5"
                     >
                       <Upload className="w-4 h-4" />
                       {uploadingId ? "Uploading…" : "Upload photo"}
                     </button>
                     {editing.imageUrl && (
-                      <p className="text-xs text-gray-400 mt-1 truncate max-w-48">{editing.imageUrl}</p>
+                      <p className="text-xs text-white/40 mt-1 truncate max-w-48">{editing.imageUrl}</p>
                     )}
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export default function AdminProductsPage() {
 
               {/* Goals */}
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Goals</label>
+                <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Goals</label>
                 <div className="flex flex-wrap gap-1.5">
                   {GOALS.map((g) => (
                     <button
@@ -327,7 +327,7 @@ export default function AdminProductsPage() {
                       className={`px-2.5 py-1 rounded-lg text-xs font-medium capitalize transition-colors ${
                         (editing.goals ?? []).includes(g)
                           ? "bg-green-600 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          : "bg-white/[0.03] border border-white/10 backdrop-blur/10 text-white/60 hover:bg-white/[0.03] border border-white/10 backdrop-blur/10"
                       }`}
                     >
                       {g}
@@ -341,16 +341,16 @@ export default function AdminProductsPage() {
                 <button
                   type="button"
                   onClick={() => setEditing({ ...editing, inStock: !editing.inStock })}
-                  className={`w-10 h-6 rounded-full transition-colors ${editing.inStock ? "bg-green-500" : "bg-gray-200"} relative`}
+                  className={`w-10 h-6 rounded-full transition-colors ${editing.inStock ? "bg-green-500" : "bg-white/[0.03] border border-white/10 backdrop-blur/10"} relative`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${editing.inStock ? "translate-x-5" : "translate-x-1"}`} />
+                  <span className={`absolute top-1 w-4 h-4 bg-white/[0.03] border border-white/10 backdrop-blur rounded-full shadow transition-transform ${editing.inStock ? "translate-x-5" : "translate-x-1"}`} />
                 </button>
-                <span className="text-sm font-medium text-gray-700">In Stock</span>
+                <span className="text-sm font-medium text-white/80">In Stock</span>
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
-              <button onClick={() => setEditing(null)} className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50">
+            <div className="px-6 py-4 border-t border-white/10 flex gap-3">
+              <button onClick={() => setEditing(null)} className="flex-1 border border-white/10 text-white/60 py-2.5 rounded-xl text-sm font-medium hover:bg-white/[0.03] border border-white/10 backdrop-blur/5">
                 Cancel
               </button>
               <button
@@ -369,11 +369,11 @@ export default function AdminProductsPage() {
       {/* Delete confirm */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4">
-            <h3 className="font-bold text-gray-900 mb-2">Delete product?</h3>
-            <p className="text-gray-500 text-sm mb-5">This cannot be undone. The product will be removed from the store.</p>
+          <div className="bg-white/[0.03] border border-white/10 backdrop-blur rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="font-bold text-white mb-2">Delete product?</h3>
+            <p className="text-white/50 text-sm mb-5">This cannot be undone. The product will be removed from the store.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteId(null)} className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50">Cancel</button>
+              <button onClick={() => setDeleteId(null)} className="flex-1 border border-white/10 text-white/60 py-2.5 rounded-xl text-sm font-medium hover:bg-white/[0.03] border border-white/10 backdrop-blur/5">Cancel</button>
               <button onClick={() => handleDelete(deleteId)} className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-red-700">Delete</button>
             </div>
           </div>
@@ -386,13 +386,13 @@ export default function AdminProductsPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
+      <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-1.5">{label}</label>
       {children}
     </div>
   );
 }
 
-const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white";
+const inputCls = "w-full border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white/[0.03] border border-white/10 backdrop-blur";
 
 function getCategoryEmoji(category: string): string {
   const map: Record<string, string> = {
