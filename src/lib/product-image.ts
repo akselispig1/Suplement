@@ -11,10 +11,11 @@ export function categorySlug(category: string): string {
  * - otherwise fall back to the tinted category bottle illustration
  */
 export function productImage(p: Pick<Product, "imageUrl" | "category">): string {
-  // Only honour real uploaded photos (saved under /images/uploads). The static
-  // catalog uses placeholder /images/products/*.jpg paths that don't exist, so
-  // those fall through to the tinted category illustration.
-  if (p.imageUrl && p.imageUrl.startsWith("/images/uploads")) return p.imageUrl;
+  // Honour a real photo: an external supplier image (http) or an uploaded file
+  // under /images/uploads. Anything else falls back to the category illustration.
+  if (p.imageUrl && (p.imageUrl.startsWith("http") || p.imageUrl.startsWith("/images/uploads"))) {
+    return p.imageUrl;
+  }
   return `/images/categories/${categorySlug(p.category)}.svg`;
 }
 

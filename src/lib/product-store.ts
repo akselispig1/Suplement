@@ -9,7 +9,7 @@ const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
 const SEED_MARKER = path.join(DATA_DIR, ".seed-version");
 
 // Bump this whenever the catalog is replaced so existing stores re-seed.
-const SEED_VERSION = "2026-07-real-catalog-v1";
+const SEED_VERSION = "2026-07-real-catalog-v3-94products";
 
 /** Ensure operator fields exist so the admin always has a buy link + costs. */
 function withDefaults(p: Product): Product {
