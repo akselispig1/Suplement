@@ -27,11 +27,11 @@ export async function POST(req: NextRequest) {
   }
 
   const filename = slug ? `${slug}.${ext}` : `${Date.now()}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "images", "products");
+  const dir = path.join(process.cwd(), "public", "images", "uploads");
   await mkdir(dir, { recursive: true });
 
   const bytes = await file.arrayBuffer();
   await writeFile(path.join(dir, filename), Buffer.from(bytes));
 
-  return NextResponse.json({ imageUrl: `/images/products/${filename}` });
+  return NextResponse.json({ imageUrl: `/images/uploads/${filename}` });
 }

@@ -47,7 +47,10 @@ export async function POST(req: NextRequest) {
     pairsWith: body.pairsWith || [],
     cautions: body.cautions || "",
     inStock: body.inStock !== false,
-    imageUrl: body.imageUrl || `/images/products/${slug}.jpg`,
+    imageUrl: body.imageUrl || "",
+    supplierUrl: body.supplierUrl || "",
+    supplierCostCHF: body.supplierCostCHF ? Number(body.supplierCostCHF) : 0,
+    shippingCostCHF: body.shippingCostCHF ? Number(body.shippingCostCHF) : 0,
   };
 
   createProduct(product);

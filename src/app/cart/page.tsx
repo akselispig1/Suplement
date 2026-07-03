@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ProductImg from "@/components/ProductImg";
 
 export default function CartPage() {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
@@ -73,8 +74,8 @@ export default function CartPage() {
             <div className="space-y-3">
               {items.map(({ product, quantity }) => (
                 <div key={product.id} className="glass rounded-2xl p-4 flex gap-4 items-center">
-                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl shrink-0">
-                    {getCategoryEmoji(product.category)}
+                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 overflow-hidden shrink-0">
+                    <ProductImg product={product} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link href={`/products/${product.slug}`} className="font-semibold text-white hover:text-emerald-400 text-sm line-clamp-1 transition-colors">{product.name}</Link>
@@ -178,17 +179,4 @@ function Field({ label, value, onChange, placeholder, required, type = "text" }:
       />
     </div>
   );
-}
-
-function getCategoryEmoji(category: string): string {
-  const map: Record<string, string> = {
-    "Vitamins": "💊", "Minerals": "🪨", "Protein & Amino Acids": "💪",
-    "Performance & Pre-Workout": "⚡", "Omega & Essential Fats": "🐟",
-    "Gut Health": "🦠", "Sleep & Relaxation": "🌙", "Stress & Adaptogens": "🌿",
-    "Focus & Nootropics": "🧠", "Joint & Mobility": "🦴", "Immune Support": "🛡️",
-    "Greens & Superfoods": "🥦", "Heart & Circulation": "❤️", "Longevity & Cellular": "⚗️",
-    "Hair, Skin & Nails": "✨", "Energy & Metabolism": "🔋",
-    "Hydration & Electrolytes": "💧", "Women's & Men's Health": "👥",
-  };
-  return map[category] || "🌱";
 }

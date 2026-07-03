@@ -2,16 +2,36 @@ import { Product } from "@/types/product";
 import fs from "fs";
 import path from "path";
 import { products as seedProducts } from "@/data/catalog";
+import { defaultSupplierUrl } from "@/lib/product-image";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
+const SEED_MARKER = path.join(DATA_DIR, ".seed-version");
+
+// Bump this whenever the catalog is replaced so existing stores re-seed.
+const SEED_VERSION = "2026-07-real-catalog-v1";
+
+/** Ensure operator fields exist so the admin always has a buy link + costs. */
+function withDefaults(p: Product): Product {
+  return {
+    ...p,
+    supplierUrl: p.supplierUrl || defaultSupplierUrl(p.name),
+    supplierCostCHF: typeof p.supplierCostCHF === "number" ? p.supplierCostCHF : 0,
+    shippingCostCHF: typeof p.shippingCostCHF === "number" ? p.shippingCostCHF : 0,
+  };
+}
 
 function ensureStore(): Product[] {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(PRODUCTS_FILE)) {
+
+  const currentVersion = fs.existsSync(SEED_MARKER) ? fs.readFileSync(SEED_MARKER, "utf-8").trim() : "";
+  if (!fs.existsSync(PRODUCTS_FILE) || currentVersion !== SEED_VERSION) {
+    // First run, or the catalog was replaced — (re)seed from the real catalog.
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(seedProducts, null, 2));
+    fs.writeFileSync(SEED_MARKER, SEED_VERSION);
   }
-  return JSON.parse(fs.readFileSync(PRODUCTS_FILE, "utf-8")) as Product[];
+  const raw = JSON.parse(fs.readFileSync(PRODUCTS_FILE, "utf-8")) as Product[];
+  return raw.map(withDefaults);
 }
 
 function save(products: Product[]) {

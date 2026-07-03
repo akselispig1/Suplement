@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart, Check, AlertCircle } from "lucide-react";
 import { useState, use } from "react";
+import ProductImg from "@/components/ProductImg";
 
 export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -29,12 +30,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       <div className="glow glow-emerald w-80 h-80 -top-32 -left-20 opacity-20" />
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         {/* Image */}
-        <div className="relative rounded-3xl flex items-center justify-center h-80 overflow-hidden glass">
-          <div className="absolute inset-0 grid-bg opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10" />
-          <div className="relative w-32 h-32 rounded-3xl bg-white/5 border border-white/10 backdrop-blur flex items-center justify-center text-6xl">
-            {getCategoryEmoji(p_.category)}
-          </div>
+        <div className="relative rounded-3xl h-80 overflow-hidden glass">
+          <ProductImg product={p_} className="w-full h-full object-cover" />
         </div>
 
         {/* Details */}
@@ -109,17 +106,4 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       )}
     </div>
   );
-}
-
-function getCategoryEmoji(category: string): string {
-  const map: Record<string, string> = {
-    "Vitamins": "💊", "Minerals": "🪨", "Protein & Amino Acids": "💪",
-    "Performance & Pre-Workout": "⚡", "Omega & Essential Fats": "🐟",
-    "Gut Health": "🦠", "Sleep & Relaxation": "🌙", "Stress & Adaptogens": "🌿",
-    "Focus & Nootropics": "🧠", "Joint & Mobility": "🦴", "Immune Support": "🛡️",
-    "Greens & Superfoods": "🥦", "Heart & Circulation": "❤️", "Longevity & Cellular": "⚗️",
-    "Hair, Skin & Nails": "✨", "Energy & Metabolism": "🔋",
-    "Hydration & Electrolytes": "💧", "Women's & Men's Health": "👥",
-  };
-  return map[category] || "🌱";
 }

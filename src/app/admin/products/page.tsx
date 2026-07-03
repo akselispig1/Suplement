@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { Product, EvidenceStrength, ProductForm } from "@/types/product";
-import { Plus, Pencil, Trash2, X, Check, Upload, RefreshCw, Search, Package } from "lucide-react";
-import Image from "next/image";
+import { Plus, Pencil, Trash2, X, Check, Upload, RefreshCw, Search, Package, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import ProductImg from "@/components/ProductImg";
 
 const CATEGORIES = [
   "Vitamins","Minerals","Protein & Amino Acids","Performance & Pre-Workout",
@@ -21,6 +21,7 @@ const EMPTY: Partial<Product> = {
   shortDescription: "", longDescription: "", form: "capsule",
   servingSize: "", servingsPerContainer: 30, priceCHF: 0,
   evidenceStrength: "moderate", bestFor: [], pairsWith: [], cautions: "", inStock: true, imageUrl: "",
+  supplierUrl: "", shippingCostCHF: 0,
 };
 
 export default function AdminProductsPage() {
@@ -155,9 +156,11 @@ export default function AdminProductsPage() {
             <tr>
               <th className="px-4 py-3 text-left">Product</th>
               <th className="px-4 py-3 text-left">Category</th>
-              <th className="px-4 py-3 text-right">Price (CHF)</th>
+              <th className="px-4 py-3 text-right">Cost (CHF)</th>
+              <th className="px-4 py-3 text-right">Ship (CHF)</th>
+              <th className="px-4 py-3 text-right">Sell (CHF)</th>
+              <th className="px-4 py-3 text-center">Buy</th>
               <th className="px-4 py-3 text-center">Stock</th>
-              <th className="px-4 py-3 text-center">Evidence</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -166,12 +169,8 @@ export default function AdminProductsPage() {
               <tr key={p.id} className="border-t border-white/5 hover:bg-white/[0.03] border border-white/10 backdrop-blur/5/50">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-50 overflow-hidden flex items-center justify-center shrink-0">
-                      {p.imageUrl && p.imageUrl.startsWith("/images") ? (
-                        <Image src={p.imageUrl} alt={p.name} width={40} height={40} className="object-cover w-full h-full" onError={() => {}} />
-                      ) : (
-                        <span className="text-lg">{getCategoryEmoji(p.category)}</span>
-                      )}
+                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                      <ProductImg product={p} className="object-cover w-full h-full" />
                     </div>
                     <div>
                       <div className="font-medium text-white">{p.name}</div>
@@ -180,12 +179,20 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-white/60">{p.category}</td>
+                <td className="px-4 py-3 text-right text-white/60">{(p.supplierCostCHF ?? 0).toFixed(2)}</td>
+                <td className="px-4 py-3 text-right text-white/60">{(p.shippingCostCHF ?? 0).toFixed(2)}</td>
                 <td className="px-4 py-3 text-right font-semibold text-white">{p.priceCHF.toFixed(2)}</td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`inline-block w-2 h-2 rounded-full ${p.inStock ? "bg-green-500" : "bg-red-400"}`} />
+                  {p.supplierUrl ? (
+                    <a href={p.supplierUrl} target="_blank" rel="noopener noreferrer" title="Open buy link" className="inline-flex text-emerald-400 hover:text-emerald-300">
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <span className="text-white/20">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className="text-xs">{p.evidenceStrength === "strong" ? "★★★" : p.evidenceStrength === "moderate" ? "★★" : "★"}</span>
+                  <span className={`inline-block w-2 h-2 rounded-full ${p.inStock ? "bg-green-500" : "bg-red-400"}`} />
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-2">
@@ -231,12 +238,8 @@ export default function AdminProductsPage() {
               <div>
                 <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Product Image</label>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-xl bg-green-50 overflow-hidden flex items-center justify-center border border-white/10">
-                    {editing.imageUrl && editing.imageUrl.startsWith("/images") ? (
-                      <Image src={editing.imageUrl} alt={editing.name ?? ""} width={80} height={80} className="object-cover w-full h-full" />
-                    ) : (
-                      <span className="text-3xl">{getCategoryEmoji(editing.category ?? "")}</span>
-                    )}
+                  <div className="w-20 h-20 rounded-xl bg-white/5 overflow-hidden flex items-center justify-center border border-white/10">
+                    <ProductImg product={{ imageUrl: editing.imageUrl ?? "", category: editing.category ?? "", name: editing.name ?? "" }} className="object-cover w-full h-full" />
                   </div>
                   <div>
                     <input type="file" accept="image/*" ref={fileRef} className="hidden" onChange={handleUpload} />
@@ -314,6 +317,51 @@ export default function AdminProductsPage() {
               <Field label="Cautions">
                 <input value={editing.cautions ?? ""} onChange={(e) => setEditing({ ...editing, cautions: e.target.value })} className={inputCls} placeholder="e.g. Consult a doctor if pregnant" />
               </Field>
+
+              {/* Sourcing (operator only) */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-4">
+                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 uppercase tracking-wide">
+                  <ExternalLink className="w-3.5 h-3.5" /> Sourcing (admin only)
+                </div>
+                <Field label="Buy link (where you order it — ships to Switzerland)">
+                  <input
+                    value={editing.supplierUrl ?? ""}
+                    onChange={(e) => setEditing({ ...editing, supplierUrl: e.target.value })}
+                    className={inputCls}
+                    placeholder="https://ch.iherb.com/..."
+                  />
+                </Field>
+                {editing.supplierUrl && (
+                  <a href={editing.supplierUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300">
+                    <ExternalLink className="w-3.5 h-3.5" /> Open buy link
+                  </a>
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Your cost (CHF)">
+                    <input
+                      type="number" step="0.05" min="0"
+                      value={editing.supplierCostCHF ?? 0}
+                      onChange={(e) => setEditing({ ...editing, supplierCostCHF: e.target.value ? parseFloat(e.target.value) : 0 })}
+                      className={inputCls}
+                      placeholder="e.g. 16.99"
+                    />
+                  </Field>
+                  <Field label="Shipping to you (CHF)">
+                    <input
+                      type="number" step="0.05" min="0"
+                      value={editing.shippingCostCHF ?? 0}
+                      onChange={(e) => setEditing({ ...editing, shippingCostCHF: e.target.value ? parseFloat(e.target.value) : 0 })}
+                      className={inputCls}
+                      placeholder="e.g. 5.90"
+                    />
+                  </Field>
+                </div>
+                {editing.supplierCostCHF ? (
+                  <p className="text-xs text-white/40">
+                    Suggested sell price (cost × 1.25): <span className="text-emerald-400 font-semibold">CHF {(editing.supplierCostCHF * 1.25).toFixed(2)}</span>
+                  </p>
+                ) : null}
+              </div>
 
               {/* Goals */}
               <div>
@@ -393,16 +441,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputCls = "w-full border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white/[0.03] border border-white/10 backdrop-blur";
-
-function getCategoryEmoji(category: string): string {
-  const map: Record<string, string> = {
-    "Vitamins": "💊","Minerals": "🪨","Protein & Amino Acids": "💪",
-    "Performance & Pre-Workout": "⚡","Omega & Essential Fats": "🐟",
-    "Gut Health": "🦠","Sleep & Relaxation": "🌙","Stress & Adaptogens": "🌿",
-    "Focus & Nootropics": "🧠","Joint & Mobility": "🦴","Immune Support": "🛡️",
-    "Greens & Superfoods": "🥦","Heart & Circulation": "❤️","Longevity & Cellular": "⚗️",
-    "Hair, Skin & Nails": "✨","Energy & Metabolism": "🔋",
-    "Hydration & Electrolytes": "💧","Women's & Men's Health": "👥",
-  };
-  return map[category] || "🌱";
-}
