@@ -5,7 +5,7 @@ import { products } from "@/data/catalog";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import ProductCard from "@/components/ProductCard";
-import { ChevronRight, ChevronLeft, ShoppingCart } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShoppingCart, Check } from "lucide-react";
 
 type Step = "goals" | "preferences" | "browse" | "summary";
 
@@ -27,9 +27,16 @@ const GOAL_OPTIONS = [
 const FORM_OPTIONS = ["capsule", "tablet", "powder", "softgel", "gummy", "any"];
 const BUDGET_OPTIONS = ["under 30", "30–60", "60+", "no limit"];
 
+const STEP_LABELS: Record<Step, string> = {
+  goals: "Goals",
+  preferences: "Preferences",
+  browse: "Your matches",
+  summary: "Review",
+};
+
 export default function SurveyPage() {
   const router = useRouter();
-  const { addItem, items } = useCart();
+  const { addItem } = useCart();
   const [step, setStep] = useState<Step>("goals");
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [vegan, setVegan] = useState<boolean | null>(null);
@@ -60,7 +67,7 @@ export default function SurveyPage() {
   function toggleProduct(id: string) {
     setSelectedProducts((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
@@ -73,178 +80,200 @@ export default function SurveyPage() {
 
   const steps: Step[] = ["goals", "preferences", "browse", "summary"];
   const stepIdx = steps.indexOf(step);
-  const progressPct = ((stepIdx + 1) / steps.length) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Progress */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-          <span>Step {stepIdx + 1} of {steps.length}</span>
-          <span className="capitalize">{step}</span>
-        </div>
-        <div className="w-full bg-gray-100 rounded-full h-2">
-          <div className="bg-green-500 h-2 rounded-full transition-all duration-300" style={{ width: `${progressPct}%` }} />
-        </div>
-      </div>
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_top,black_5%,transparent_60%)]" />
+      <div className="glow glow-emerald w-96 h-96 -top-40 -left-20 opacity-30" />
 
-      {/* Goals */}
-      {step === "goals" && (
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">What are your goals?</h1>
-          <p className="text-gray-500 mb-8">Select all that apply. You can skip any step.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-            {GOAL_OPTIONS.map((g) => (
-              <button
-                key={g.id}
-                onClick={() => toggleGoal(g.id)}
-                className={`flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${
-                  selectedGoals.includes(g.id)
-                    ? "border-green-500 bg-green-50 text-green-900"
-                    : "border-gray-100 bg-white text-gray-700 hover:border-gray-200"
-                }`}
-              >
-                <span className="text-2xl">{g.emoji}</span>
-                <span className="font-medium text-sm">{g.label}</span>
-              </button>
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Stepper */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-3">
+            {steps.map((s, i) => (
+              <div key={s} className="flex items-center flex-1 last:flex-none">
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
+                    i < stepIdx ? "bg-gradient-to-br from-emerald-400 to-cyan-400 text-[#04120f]"
+                    : i === stepIdx ? "glass !border-emerald-500/60 text-emerald-300"
+                    : "glass text-white/30"
+                  }`}>
+                    {i < stepIdx ? <Check className="w-4 h-4" /> : i + 1}
+                  </div>
+                  <span className={`text-xs font-medium hidden sm:block ${i === stepIdx ? "text-white" : "text-white/40"}`}>{STEP_LABELS[s]}</span>
+                </div>
+                {i < steps.length - 1 && (
+                  <div className={`flex-1 h-px mx-3 ${i < stepIdx ? "bg-emerald-500/50" : "bg-white/10"}`} />
+                )}
+              </div>
             ))}
           </div>
-          <div className="flex justify-between">
-            <button onClick={() => setStep("browse")} className="text-sm text-gray-400 hover:text-gray-600">Skip</button>
-            <button onClick={() => setStep("preferences")} className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700">
-              Next <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
         </div>
-      )}
 
-      {/* Preferences */}
-      {step === "preferences" && (
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your preferences</h1>
-          <p className="text-gray-500 mb-8">These help us filter the right products for you.</p>
-          <div className="space-y-6 mb-8">
-            <div>
-              <p className="font-semibold text-gray-800 mb-3">Are you vegan?</p>
-              <div className="flex gap-3">
-                {[{ val: true, label: "Yes" }, { val: false, label: "No" }, { val: null, label: "No preference" }].map(({ val, label }) => (
+        {/* Goals */}
+        {step === "goals" && (
+          <div className="fade-up">
+            <div className="eyebrow text-emerald-400 mb-3">Step 1</div>
+            <h1 className="text-4xl font-bold text-white mb-2">What are your goals?</h1>
+            <p className="text-[var(--muted)] mb-8">Select all that apply — we&apos;ll match products to each one.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+              {GOAL_OPTIONS.map((g) => {
+                const on = selectedGoals.includes(g.id);
+                return (
                   <button
-                    key={label}
-                    onClick={() => setVegan(val)}
-                    className={`px-4 py-2 rounded-xl border font-medium text-sm transition-colors ${vegan === val ? "border-green-500 bg-green-50 text-green-800" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}
+                    key={g.id}
+                    onClick={() => toggleGoal(g.id)}
+                    className={`group flex items-center gap-3 p-4 rounded-2xl text-left transition-all glass glass-hover ${
+                      on ? "!border-emerald-500/70 !bg-emerald-500/10" : ""
+                    }`}
                   >
-                    {label}
+                    <span className="text-2xl group-hover:scale-110 transition-transform">{g.emoji}</span>
+                    <span className={`font-medium text-sm ${on ? "text-emerald-200" : "text-white/80"}`}>{g.label}</span>
+                    {on && <Check className="w-4 h-4 text-emerald-400 ml-auto" />}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-            <div>
-              <p className="font-semibold text-gray-800 mb-3">Preferred form</p>
-              <div className="flex flex-wrap gap-2">
-                {FORM_OPTIONS.map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFormPref(f)}
-                    className={`px-4 py-2 rounded-xl border font-medium text-sm capitalize transition-colors ${formPref === f ? "border-green-500 bg-green-50 text-green-800" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800 mb-3">Budget per product (CHF)</p>
-              <div className="flex flex-wrap gap-2">
-                {BUDGET_OPTIONS.map((b) => (
-                  <button
-                    key={b}
-                    onClick={() => setBudget(b)}
-                    className={`px-4 py-2 rounded-xl border font-medium text-sm transition-colors ${budget === b ? "border-green-500 bg-green-50 text-green-800" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}
-                  >
-                    {b}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <button onClick={() => setStep("goals")} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
-            <button onClick={() => setStep("browse")} className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700">
-              See Products <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Browse */}
-      {step === "browse" && (
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Choose your products</h1>
-          <p className="text-gray-500 mb-6">{relevantProducts.length} products matched. Select the ones you want.</p>
-          {Object.entries(byCategory).map(([cat, prods]) => (
-            <div key={cat} className="mb-10">
-              <h2 className="text-lg font-bold text-gray-800 mb-4">{cat}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {prods.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    product={p}
-                    showSelect
-                    selected={selectedProducts.has(p.id)}
-                    onToggleSelect={() => toggleProduct(p.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-          {relevantProducts.length === 0 && (
-            <p className="text-gray-400 py-12 text-center">No products match your filters. <button className="text-green-600 underline" onClick={() => { setFormPref("any"); setBudget("no limit"); setVegan(null); }}>Reset preferences</button></p>
-          )}
-          <div className="flex justify-between items-center mt-6">
-            <button onClick={() => setStep("preferences")} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
-            <button
-              onClick={() => setStep("summary")}
-              className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50"
-              disabled={selectedProducts.size === 0}
-            >
-              Review ({selectedProducts.size}) <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Summary */}
-      {step === "summary" && (
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your stack</h1>
-          <p className="text-gray-500 mb-6">{selectedProducts.size} products selected. Ready to add to cart?</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            {products
-              .filter((p) => selectedProducts.has(p.id))
-              .map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-800">Estimated total</span>
-              <span className="text-xl font-bold text-gray-900">
+              <button onClick={() => setStep("browse")} className="text-sm text-white/40 hover:text-white transition-colors">Skip →</button>
+              <button onClick={() => setStep("preferences")} className="btn-primary flex items-center gap-2 px-6 py-3 rounded-xl">
+                Next <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Preferences */}
+        {step === "preferences" && (
+          <div className="fade-up">
+            <div className="eyebrow text-emerald-400 mb-3">Step 2</div>
+            <h1 className="text-4xl font-bold text-white mb-2">Your preferences</h1>
+            <p className="text-[var(--muted)] mb-8">These help us narrow down to the right products.</p>
+            <div className="space-y-8 mb-8">
+              <Pref label="Are you vegan?">
+                {[{ val: true, label: "Yes" }, { val: false, label: "No" }, { val: null, label: "No preference" }].map(({ val, label }) => (
+                  <Chip key={label} active={vegan === val} onClick={() => setVegan(val)}>{label}</Chip>
+                ))}
+              </Pref>
+              <Pref label="Preferred form">
+                {FORM_OPTIONS.map((f) => (
+                  <Chip key={f} active={formPref === f} onClick={() => setFormPref(f)} className="capitalize">{f}</Chip>
+                ))}
+              </Pref>
+              <Pref label="Budget per product (CHF)">
+                {BUDGET_OPTIONS.map((b) => (
+                  <Chip key={b} active={budget === b} onClick={() => setBudget(b)}>{b}</Chip>
+                ))}
+              </Pref>
+            </div>
+            <div className="flex justify-between">
+              <button onClick={() => setStep("goals")} className="btn-ghost flex items-center gap-1 text-sm px-4 py-3 rounded-xl">
+                <ChevronLeft className="w-4 h-4" /> Back
+              </button>
+              <button onClick={() => setStep("browse")} className="btn-primary flex items-center gap-2 px-6 py-3 rounded-xl">
+                See {relevantProducts.length} Matches <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Browse */}
+        {step === "browse" && (
+          <div className="fade-up">
+            <div className="eyebrow text-emerald-400 mb-3">Step 3</div>
+            <h1 className="text-4xl font-bold text-white mb-2">Your matches</h1>
+            <p className="text-[var(--muted)] mb-6">
+              <span className="text-white font-semibold">{relevantProducts.length} products</span> matched
+              {selectedGoals.length > 0 && <> your {selectedGoals.length} goal{selectedGoals.length !== 1 ? "s" : ""}</>}. Tap to add them to your stack.
+            </p>
+            {Object.entries(byCategory).map(([cat, prods]) => (
+              <div key={cat} className="mb-10">
+                <h2 className="text-sm font-bold text-white/70 mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {cat}
+                  <span className="text-white/30 font-normal font-mono text-xs">({prods.length})</span>
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {prods.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      showSelect
+                      selected={selectedProducts.has(p.id)}
+                      onToggleSelect={() => toggleProduct(p.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+            {relevantProducts.length === 0 && (
+              <div className="glass rounded-2xl p-10 text-center text-[var(--muted)]">
+                No products match your filters.{" "}
+                <button className="text-emerald-400 underline" onClick={() => { setFormPref("any"); setBudget("no limit"); setVegan(null); }}>Reset preferences</button>
+              </div>
+            )}
+            <div className="flex justify-between items-center mt-6">
+              <button onClick={() => setStep("preferences")} className="btn-ghost flex items-center gap-1 text-sm px-4 py-3 rounded-xl">
+                <ChevronLeft className="w-4 h-4" /> Back
+              </button>
+              <button
+                onClick={() => setStep("summary")}
+                className="btn-primary flex items-center gap-2 px-6 py-3 rounded-xl"
+                disabled={selectedProducts.size === 0}
+              >
+                Review ({selectedProducts.size}) <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Summary */}
+        {step === "summary" && (
+          <div className="fade-up">
+            <div className="eyebrow text-emerald-400 mb-3">Step 4</div>
+            <h1 className="text-4xl font-bold text-white mb-2">Your stack</h1>
+            <p className="text-[var(--muted)] mb-6">{selectedProducts.size} product{selectedProducts.size !== 1 ? "s" : ""} selected. Ready to add to cart?</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+              {products.filter((p) => selectedProducts.has(p.id)).map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+            <div className="glass rounded-2xl p-6 mb-6 flex justify-between items-center">
+              <span className="font-semibold text-white/80">Estimated total</span>
+              <span className="text-2xl font-black gradient-text">
                 CHF {products.filter((p) => selectedProducts.has(p.id)).reduce((s, p) => s + p.priceCHF, 0).toFixed(2)}
               </span>
             </div>
+            <div className="flex gap-3">
+              <button onClick={() => setStep("browse")} className="btn-ghost flex items-center gap-1 text-sm px-5 py-3 rounded-xl">
+                <ChevronLeft className="w-4 h-4" /> Edit
+              </button>
+              <button onClick={addSelectedToCart} disabled={selectedProducts.size === 0} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3 rounded-xl">
+                <ShoppingCart className="w-5 h-5" /> Add All to Cart
+              </button>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <button onClick={() => setStep("browse")} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-4 py-3 border border-gray-200 rounded-xl">
-              <ChevronLeft className="w-4 h-4" /> Edit
-            </button>
-            <button onClick={addSelectedToCart} className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700">
-              <ShoppingCart className="w-5 h-5" /> Add All to Cart
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
+  );
+}
+
+function Pref({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="font-semibold text-white mb-3">{label}</p>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}
+
+function Chip({ active, onClick, children, className = "" }: { active: boolean; onClick: () => void; children: React.ReactNode; className?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${className} ${
+        active ? "btn-primary" : "btn-ghost"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

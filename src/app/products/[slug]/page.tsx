@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart, Check, AlertCircle } from "lucide-react";
 import { useState, use } from "react";
+import ProductImg from "@/components/ProductImg";
 
 export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -25,66 +26,56 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+    <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
+      <div className="glow glow-emerald w-80 h-80 -top-32 -left-20 opacity-20" />
+      <div className="relative grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         {/* Image */}
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl flex items-center justify-center h-80">
-          <div className="w-32 h-32 rounded-full bg-white shadow-md flex items-center justify-center text-6xl">
-            {getCategoryEmoji(p_.category)}
-          </div>
+        <div className="relative rounded-3xl h-80 overflow-hidden glass">
+          <ProductImg product={p_} className="w-full h-full object-cover" />
         </div>
 
         {/* Details */}
         <div className="flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">{p_.category}</span>
+            <span className="text-xs font-medium text-white/60 glass px-2.5 py-1 rounded-full">{p_.category}</span>
             <EvidenceBadge strength={p_.evidenceStrength} />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">{p_.name}</h1>
-          <p className="text-gray-500 mb-5">{p_.longDescription}</p>
+          <h1 className="text-3xl font-bold text-white mb-3">{p_.name}</h1>
+          <p className="text-[var(--muted)] mb-5 leading-relaxed">{p_.longDescription}</p>
 
           <div className="grid grid-cols-2 gap-3 text-sm mb-5">
-            <div className="bg-gray-50 rounded-xl p-3">
-              <div className="text-xs text-gray-400 mb-0.5">Form</div>
-              <div className="font-medium capitalize">{p_.form}</div>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <div className="text-xs text-gray-400 mb-0.5">Serving</div>
-              <div className="font-medium">{p_.servingSize}</div>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <div className="text-xs text-gray-400 mb-0.5">Servings</div>
-              <div className="font-medium">{p_.servingsPerContainer} per container</div>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <div className="text-xs text-gray-400 mb-0.5">Brand</div>
-              <div className="font-medium">{p_.brandLabel}</div>
-            </div>
+            {[
+              { label: "Form", value: p_.form, cap: true },
+              { label: "Serving", value: p_.servingSize },
+              { label: "Servings", value: `${p_.servingsPerContainer} per container` },
+              { label: "Brand", value: p_.brandLabel },
+            ].map((s) => (
+              <div key={s.label} className="glass rounded-xl p-3">
+                <div className="eyebrow text-white/40 mb-1">{s.label}</div>
+                <div className={`font-medium text-white ${s.cap ? "capitalize" : ""}`}>{s.value}</div>
+              </div>
+            ))}
           </div>
 
           <div className="flex items-baseline gap-3 mb-5">
-            <span className="text-3xl font-bold text-gray-900">CHF {p_.priceCHF.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-white">CHF {p_.priceCHF.toFixed(2)}</span>
             {p_.compareAtPriceCHF && (
-              <span className="text-lg text-gray-400 line-through">CHF {p_.compareAtPriceCHF.toFixed(2)}</span>
+              <span className="text-lg text-white/30 line-through">CHF {p_.compareAtPriceCHF.toFixed(2)}</span>
             )}
           </div>
 
           <button
             onClick={handleAdd}
             disabled={!p_.inStock}
-            className={`flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-colors mb-4 ${
-              !p_.inStock
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : added
-                ? "bg-green-600 text-white"
-                : "bg-green-600 text-white hover:bg-green-700"
+            className={`flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all mb-4 ${
+              !p_.inStock ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5" : "btn-primary"
             }`}
           >
             {added ? <><Check className="w-5 h-5" /> Added to Cart</> : <><ShoppingCart className="w-5 h-5" /> {p_.inStock ? "Add to Cart" : "Out of Stock"}</>}
           </button>
 
           {p_.cautions && (
-            <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 rounded-xl p-3">
+            <div className="flex items-start gap-2 text-xs text-amber-300 glass !border-amber-500/20 rounded-xl p-3">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{p_.cautions}</span>
             </div>
@@ -94,11 +85,11 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
       {/* Goals */}
       {p_.bestFor.length > 0 && (
-        <div className="mb-10">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">Best for</h2>
+        <div className="relative mb-10">
+          <h2 className="text-xl font-bold text-white mb-3">Best for</h2>
           <div className="flex flex-wrap gap-2">
             {p_.bestFor.map((g) => (
-              <span key={g} className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium capitalize">{g}</span>
+              <span key={g} className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 px-3 py-1 rounded-full text-sm font-medium capitalize">{g}</span>
             ))}
           </div>
         </div>
@@ -106,8 +97,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
       {/* Pairs with */}
       {pairs.length > 0 && (
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Pairs well with</h2>
+        <div className="relative">
+          <h2 className="text-xl font-bold text-white mb-4">Pairs well with</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {pairs.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
@@ -115,17 +106,4 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       )}
     </div>
   );
-}
-
-function getCategoryEmoji(category: string): string {
-  const map: Record<string, string> = {
-    "Vitamins": "💊", "Minerals": "🪨", "Protein & Amino Acids": "💪",
-    "Performance & Pre-Workout": "⚡", "Omega & Essential Fats": "🐟",
-    "Gut Health": "🦠", "Sleep & Relaxation": "🌙", "Stress & Adaptogens": "🌿",
-    "Focus & Nootropics": "🧠", "Joint & Mobility": "🦴", "Immune Support": "🛡️",
-    "Greens & Superfoods": "🥦", "Heart & Circulation": "❤️", "Longevity & Cellular": "⚗️",
-    "Hair, Skin & Nails": "✨", "Energy & Metabolism": "🔋",
-    "Hydration & Electrolytes": "💧", "Women's & Men's Health": "👥",
-  };
-  return map[category] || "🌱";
 }

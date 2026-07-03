@@ -40,5 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Runtime order data
+# Runtime data (seeded from src/data/catalog.ts on first run)
 data/orders.json
+data/products.json
+data/.seed-version
+# Uploaded product photos
+public/images/uploads

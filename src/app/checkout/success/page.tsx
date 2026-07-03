@@ -12,23 +12,26 @@ export default function SuccessPage() {
   }, [clearCart]);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <CheckCircle className="w-10 h-10 text-green-600" />
-      </div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-3">Order confirmed!</h1>
-      <p className="text-gray-500 mb-2">Thank you for your order. You&apos;ll receive a confirmation email shortly.</p>
-      <p className="text-gray-500 mb-8 flex items-center justify-center gap-2">
-        <Package className="w-4 h-4 text-green-600" />
-        Everything will ship in one package.
-      </p>
-      <div className="flex gap-3 justify-center">
-        <Link href="/" className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors">
-          Back to Home
-        </Link>
-        <Link href="/products" className="bg-white text-gray-700 border border-gray-200 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
-          Keep Shopping
-        </Link>
+    <div className="relative max-w-2xl mx-auto px-4 py-24 text-center overflow-hidden">
+      <div className="glow glow-emerald glow-pulse w-96 h-96 -top-20 left-1/2 -translate-x-1/2 opacity-30" />
+      <div className="relative fade-up">
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-[0_0_40px_-4px_rgba(16,185,129,0.8)]">
+          <CheckCircle className="w-10 h-10 text-[#04120f]" />
+        </div>
+        <h1 className="text-3xl font-bold text-white mb-3">Order confirmed!</h1>
+        <p className="text-[var(--muted)] mb-2">Thank you for your order. You&apos;ll receive a confirmation email shortly.</p>
+        <p className="text-[var(--muted)] mb-8 flex items-center justify-center gap-2">
+          <Package className="w-4 h-4 text-emerald-400" />
+          Everything will ship in one package.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <Link href="/" className="btn-primary px-6 py-3 rounded-xl">
+            Back to Home
+          </Link>
+          <Link href="/products" className="btn-ghost px-6 py-3 rounded-xl font-semibold">
+            Keep Shopping
+          </Link>
+        </div>
       </div>
     </div>
   );

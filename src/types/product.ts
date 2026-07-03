@@ -22,6 +22,12 @@ export type Product = {
   cautions: string;
   inStock: boolean;
   imageUrl: string;
+  /** Operator sourcing link — where to buy this to fulfil orders (ships to CH). */
+  supplierUrl?: string;
+  /** What the operator pays the supplier for the product, in CHF. */
+  supplierCostCHF?: number;
+  /** Operator's shipping cost from the supplier, in CHF (estimate — verify at checkout). */
+  shippingCostCHF?: number;
 };
 
 export type CartItem = {
@@ -49,6 +55,6 @@ export type Order = {
   }[];
   totalCHF: number;
   stripeSessionId: string;
-  status: "to_ship" | "shipped" | "cancelled";
+  status: "awaiting_payment" | "to_ship" | "shipped" | "cancelled";
   createdAt: string;
 };

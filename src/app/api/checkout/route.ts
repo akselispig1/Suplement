@@ -1,46 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
-import { products } from "@/data/catalog";
+import { getAllProducts } from "@/lib/product-store";
+import { createOrder } from "@/lib/orders";
+import { randomUUID } from "crypto";
+import { Order } from "@/types/product";
 
 export async function POST(req: NextRequest) {
   try {
-    const { items } = await req.json() as { items: { productId: string; quantity: number }[] };
+    const body = await req.json() as {
+      items: { productId: string; quantity: number }[];
+      customerName?: string;
+      customerEmail?: string;
+      shippingAddress?: { line1: string; city: string; postalCode: string; country?: string };
+    };
+
+    const { items, customerName, customerEmail, shippingAddress } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    const lineItems = items.map(({ productId, quantity }) => {
-      const product = products.find((p) => p.id === productId);
+    const allProducts = getAllProducts();
+    const orderItems = items.map(({ productId, quantity }) => {
+      const product = allProducts.find((p) => p.id === productId);
       if (!product) throw new Error(`Product ${productId} not found`);
-      return {
-        price_data: {
-          currency: "chf",
-          unit_amount: Math.round(product.priceCHF * 100),
-          product_data: {
-            name: product.name,
-            description: product.shortDescription,
-            metadata: { productId: product.id },
-          },
-        },
-        quantity,
-      };
+      return { productId, productName: product.name, quantity, priceCHF: product.priceCHF };
     });
 
-    const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const totalCHF = orderItems.reduce((s, i) => s + i.priceCHF * i.quantity, 0);
+    const orderId = `SS-${Date.now()}-${randomUUID().slice(0, 6).toUpperCase()}`;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: lineItems,
-      shipping_address_collection: { allowed_countries: ["CH", "DE", "AT", "FR", "GB", "US"] },
-      metadata: { items: JSON.stringify(items) },
-      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cart`,
-    });
+    const order: Order = {
+      id: orderId,
+      customerName: customerName || "Customer",
+      customerEmail: customerEmail || "",
+      shippingAddress: {
+        line1: shippingAddress?.line1 || "",
+        city: shippingAddress?.city || "",
+        postalCode: shippingAddress?.postalCode || "",
+        country: shippingAddress?.country || "CH",
+      },
+      items: orderItems,
+      totalCHF,
+      stripeSessionId: "",
+      status: "awaiting_payment",
+      createdAt: new Date().toISOString(),
+    };
 
-    return NextResponse.json({ url: session.url });
+    createOrder(order);
+
+    return NextResponse.json({ orderId, totalCHF });
   } catch (err) {
     console.error("[checkout]", err);
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Checkout failed" }, { status: 500 });
   }
 }
