@@ -74,8 +74,8 @@ export default function CartPage() {
             <div className="space-y-3">
               {items.map(({ product, quantity }) => (
                 <div key={product.id} className="glass rounded-2xl p-4 flex gap-4 items-center">
-                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 overflow-hidden shrink-0">
-                    <ProductImg product={product} className="w-full h-full object-cover" />
+                  <div className="w-14 h-14 rounded-xl bg-white border border-white/10 overflow-hidden shrink-0">
+                    <ProductImg product={product} className="w-full h-full object-contain p-1.5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link href={`/products/${product.slug}`} className="font-semibold text-white hover:text-emerald-400 text-sm line-clamp-1 transition-colors">{product.name}</Link>

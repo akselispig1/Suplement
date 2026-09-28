@@ -169,8 +169,8 @@ export default function AdminProductsPage() {
               <tr key={p.id} className="border-t border-white/5 hover:bg-white/[0.03] border border-white/10 backdrop-blur/5/50">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
-                      <ProductImg product={p} className="object-cover w-full h-full" />
+                    <div className="w-10 h-10 rounded-lg bg-white border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                      <ProductImg product={p} className="object-contain w-full h-full p-0.5" />
                     </div>
                     <div>
                       <div className="font-medium text-white">{p.name}</div>
@@ -238,8 +238,8 @@ export default function AdminProductsPage() {
               <div>
                 <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Product Image</label>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-xl bg-white/5 overflow-hidden flex items-center justify-center border border-white/10">
-                    <ProductImg product={{ imageUrl: editing.imageUrl ?? "", category: editing.category ?? "", name: editing.name ?? "" }} className="object-cover w-full h-full" />
+                  <div className="w-20 h-20 rounded-xl bg-white overflow-hidden flex items-center justify-center border border-white/10">
+                    <ProductImg product={{ imageUrl: editing.imageUrl ?? "", category: editing.category ?? "", name: editing.name ?? "" }} className="object-contain w-full h-full p-1" />
                   </div>
                   <div>
                     <input type="file" accept="image/*" ref={fileRef} className="hidden" onChange={handleUpload} />

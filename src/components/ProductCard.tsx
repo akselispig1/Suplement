@@ -29,9 +29,9 @@ export default function ProductCard({ product, reason, showSelect, selected, onT
   return (
     <div className={`group relative glass glass-hover rounded-2xl overflow-hidden flex flex-col ${selected ? "!border-emerald-500/70 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]" : ""}`}>
       <Link href={`/products/${product.slug}`} className="flex-1 flex flex-col">
-        <div className="relative h-44 overflow-hidden">
-          <ProductImg product={product} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-          <span className="absolute top-2 left-2 text-[10px] font-semibold tracking-wide uppercase text-white/80 bg-black/50 backdrop-blur border border-white/10 rounded-full px-2 py-0.5">
+        <div className="relative h-48 overflow-hidden bg-gradient-to-b from-white to-neutral-100">
+          <ProductImg product={product} className="w-full h-full object-contain p-4 group-hover:scale-[1.04] transition-transform duration-300" />
+          <span className="absolute top-2 left-2 text-[10px] font-semibold tracking-wide uppercase text-neutral-600 bg-white/85 backdrop-blur border border-black/10 rounded-full px-2 py-0.5">
             {product.brandLabel}
           </span>
         </div>

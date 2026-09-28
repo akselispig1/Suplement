@@ -30,8 +30,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       <div className="glow glow-emerald w-80 h-80 -top-32 -left-20 opacity-20" />
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         {/* Image */}
-        <div className="relative rounded-3xl h-80 overflow-hidden glass">
-          <ProductImg product={p_} className="w-full h-full object-cover" />
+        <div className="relative rounded-3xl h-80 overflow-hidden bg-gradient-to-b from-white to-neutral-100 border border-white/10">
+          <ProductImg product={p_} className="w-full h-full object-contain p-8" />
         </div>
 
         {/* Details */}
