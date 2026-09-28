@@ -5,6 +5,34 @@ import { shippingFor } from "@/lib/shipping";
 import { randomUUID } from "crypto";
 import { Order } from "@/types/product";
 
+/**
+ * Live availability check against the supplier's Shopify feed.
+ * Returns false ONLY when the product page is gone (404 = delisted/unavailable).
+ * Returns true when the feed clearly marks it buyable; otherwise null (unknown),
+ * because most of these shops report `available:false` even for in-stock items,
+ * so that flag can't be trusted to block an order.
+ */
+async function liveAvailable(supplierUrl?: string): Promise<boolean | null> {
+  if (!supplierUrl) return null;
+  try {
+    const u = new URL(supplierUrl);
+    if (!u.pathname.includes("/products/")) return null;
+    const jsonUrl = `${u.origin}${u.pathname.replace(/\/+$/, "")}.json`;
+    const res = await fetch(jsonUrl, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (res.status === 404 || res.status === 410) return false; // product removed
+    if (!res.ok) return null;
+    const j = await res.json();
+    const variants = j?.product?.variants;
+    if (Array.isArray(variants) && variants.some((v: { available?: boolean }) => v.available === true)) return true;
+    return null; // inconclusive — don't block on the unreliable sold-out flag
+  } catch {
+    return null; // network/timeout/parse — unknown, fall back to admin flag
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as {
@@ -22,21 +50,32 @@ export async function POST(req: NextRequest) {
 
     const allProducts = getAllProducts();
 
-    // Stock / availability check — ensure every item can actually be sourced and
-    // shipped. If not, tell the customer and offer in-stock replacements.
-    const issues = items
-      .map(({ productId }) => {
-        const product = allProducts.find((p) => p.id === productId);
-        if (product && product.inStock) return null;
-        const name = product?.name ?? "This product";
-        const category = product?.category;
-        const replacements = allProducts
-          .filter((p) => p.inStock && p.id !== productId && (!category || p.category === category))
-          .sort((a, b) => Math.abs((a.priceCHF) - (product?.priceCHF ?? a.priceCHF)) - Math.abs((b.priceCHF) - (product?.priceCHF ?? b.priceCHF)))
-          .slice(0, 3);
-        return { productId, productName: name, reason: product ? "Out of stock" : "No longer available", replacements };
-      })
-      .filter(Boolean);
+    // Availability check — verify each item live on the supplier's site, and fall
+    // back to the admin in-stock flag if the live check can't be reached. If an
+    // item can't be sourced, block the order and offer in-stock replacements.
+    const issues = (
+      await Promise.all(
+        items.map(async ({ productId }) => {
+          const product = allProducts.find((p) => p.id === productId);
+          if (product && product.inStock) {
+            const live = await liveAvailable(product.supplierUrl);
+            if (live !== false) return null; // in stock, or unknown -> allow
+          }
+          const name = product?.name ?? "This product";
+          const category = product?.category;
+          const replacements = allProducts
+            .filter((p) => p.inStock && p.id !== productId && (!category || p.category === category))
+            .sort((a, b) => Math.abs(a.priceCHF - (product?.priceCHF ?? a.priceCHF)) - Math.abs(b.priceCHF - (product?.priceCHF ?? b.priceCHF)))
+            .slice(0, 3);
+          return {
+            productId,
+            productName: name,
+            reason: !product ? "No longer available" : "Out of stock at the supplier",
+            replacements,
+          };
+        })
+      )
+    ).filter(Boolean);
 
     if (issues.length > 0) {
       return NextResponse.json(
