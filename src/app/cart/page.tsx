@@ -1,18 +1,22 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductImg from "@/components/ProductImg";
+import { Product } from "@/types/product";
 import { shippingFor, SHIPPING_FEE_CHF, FREE_SHIPPING_OVER_CHF } from "@/lib/shipping";
 
+type StockIssue = { productId: string; productName: string; reason: string; replacements: Product[] };
+
 export default function CartPage() {
-  const { items, removeItem, updateQty, total, clearCart } = useCart();
+  const { items, removeItem, updateQty, total, clearCart, addItem } = useCart();
   const shipping = shippingFor(total);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stockIssues, setStockIssues] = useState<StockIssue[] | null>(null);
   const [form, setForm] = useState({
     customerName: "",
     customerEmail: "",
@@ -25,10 +29,20 @@ export default function CartPage() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  function swapReplacement(oldId: string, replacement: Product) {
+    removeItem(oldId);
+    addItem(replacement);
+    setStockIssues((prev) => {
+      const next = (prev ?? []).filter((iss) => iss.productId !== oldId);
+      return next.length ? next : null;
+    });
+  }
+
   async function handleCheckout(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setStockIssues(null);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -41,6 +55,11 @@ export default function CartPage() {
         }),
       });
       const data = await res.json();
+      if (res.status === 409 && data.issues) {
+        setStockIssues(data.issues);
+        setLoading(false);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Checkout failed");
       clearCart();
       router.push(`/checkout/twint?orderId=${encodeURIComponent(data.orderId)}&total=${data.totalCHF.toFixed(2)}&name=${encodeURIComponent(form.customerName)}`);
@@ -163,6 +182,40 @@ export default function CartPage() {
               </div>
 
               {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
+
+              {stockIssues && stockIssues.length > 0 && (
+                <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3">
+                  <p className="text-sm font-semibold text-amber-300 flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-4 h-4" /> Some items aren&apos;t available
+                  </p>
+                  <p className="text-xs text-amber-200/80 mb-3">We couldn&apos;t source the item(s) below right now. Pick a replacement, or remove it, then place your order again.</p>
+                  <div className="space-y-3">
+                    {stockIssues.map((iss) => (
+                      <div key={iss.productId} className="text-xs">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-white/80"><span className="line-through text-white/40">{iss.productName}</span> — {iss.reason}</span>
+                          <button onClick={() => removeItem(iss.productId)} className="text-white/50 hover:text-red-400 shrink-0">Remove</button>
+                        </div>
+                        {iss.replacements.length > 0 && (
+                          <div className="mt-1.5 space-y-1">
+                            <p className="text-white/40">Replace with:</p>
+                            {iss.replacements.map((r) => (
+                              <button
+                                key={r.id}
+                                onClick={() => swapReplacement(iss.productId, r)}
+                                className="w-full flex items-center justify-between gap-2 rounded-lg border border-white/10 hover:border-emerald-500/50 bg-white/[0.03] px-2.5 py-1.5 text-left transition-colors"
+                              >
+                                <span className="text-white/80 line-clamp-1">{r.name}</span>
+                                <span className="text-emerald-400 font-medium shrink-0">CHF {r.priceCHF.toFixed(2)} →</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={loading}

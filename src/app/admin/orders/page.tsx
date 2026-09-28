@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Order } from "@/types/product";
-import { Truck, RefreshCw, CheckCircle, Clock } from "lucide-react";
+import { Order, Product } from "@/types/product";
+import { Truck, RefreshCw, CheckCircle, Clock, ExternalLink } from "lucide-react";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [productMap, setProductMap] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | Order["status"]>("all");
@@ -12,10 +13,19 @@ export default function AdminOrdersPage() {
   async function fetchOrders() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/orders");
-      if (!res.ok) throw new Error("Unauthorized");
-      const data = await res.json();
+      const [ordersRes, productsRes] = await Promise.all([
+        fetch("/api/admin/orders"),
+        fetch("/api/admin/products"),
+      ]);
+      if (!ordersRes.ok) throw new Error("Unauthorized");
+      const data = await ordersRes.json();
       setOrders(data.orders.sort((a: Order, b: Order) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      if (productsRes.ok) {
+        const pd = await productsRes.json();
+        const map: Record<string, Product> = {};
+        (pd.products ?? []).forEach((p: Product) => { map[p.id] = p; });
+        setProductMap(map);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load orders");
     } finally {
@@ -116,18 +126,56 @@ export default function AdminOrdersPage() {
 
               {/* Items */}
               <div className="mt-4">
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Packing List</p>
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Packing list — order each item from its supplier</p>
                 <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-white/40 text-xs">
+                      <th className="text-left font-medium py-1">Product</th>
+                      <th className="text-left font-medium py-1">Supplier</th>
+                      <th className="text-center font-medium py-1 w-12">Qty</th>
+                      <th className="text-right font-medium py-1 w-24">Your cost</th>
+                      <th className="text-right font-medium py-1 w-20">Buy</th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    {order.items.map((item, i) => (
-                      <tr key={i} className="border-t border-white/5">
-                        <td className="py-1.5 text-white/80">{item.productName}</td>
-                        <td className="py-1.5 text-center text-white/50 w-16">×{item.quantity}</td>
-                        <td className="py-1.5 text-right text-white/80 w-24">CHF {(item.priceCHF * item.quantity).toFixed(2)}</td>
-                      </tr>
-                    ))}
+                    {order.items.map((item, i) => {
+                      const p = productMap[item.productId];
+                      const lineCost = (p?.supplierCostCHF ?? 0) * item.quantity;
+                      return (
+                        <tr key={i} className="border-t border-white/5">
+                          <td className="py-1.5 text-white/80">{item.productName} <span className="text-white/30">×{item.quantity}</span></td>
+                          <td className="py-1.5 text-white/50">{p?.brandLabel ?? "—"}</td>
+                          <td className="py-1.5 text-center text-white/50">{item.quantity}</td>
+                          <td className="py-1.5 text-right text-white/60">{p?.supplierCostCHF ? `CHF ${lineCost.toFixed(2)}` : "—"}</td>
+                          <td className="py-1.5 text-right">
+                            {p?.supplierUrl ? (
+                              <a href={p.supplierUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-medium">
+                                Order <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            ) : <span className="text-white/20">—</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
+
+                {/* Profit summary */}
+                {(() => {
+                  const cost = order.items.reduce((s, it) => s + (productMap[it.productId]?.supplierCostCHF ?? 0) * it.quantity, 0);
+                  const shipping = order.shippingCHF ?? 0;
+                  const revenue = order.totalCHF;
+                  const profit = revenue - cost - shipping;
+                  const known = order.items.every((it) => productMap[it.productId]?.supplierCostCHF != null);
+                  return (
+                    <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2">
+                      <span className="text-white/50">Customer paid: <span className="text-white/80 font-semibold">CHF {revenue.toFixed(2)}</span></span>
+                      <span className="text-white/50">Your supplier cost: <span className="text-white/80">CHF {cost.toFixed(2)}</span></span>
+                      {shipping > 0 && <span className="text-white/50">Shipping charged: <span className="text-white/80">CHF {shipping.toFixed(2)}</span></span>}
+                      <span className="text-white/50">Est. profit: <span className={profit >= 0 ? "text-emerald-400 font-semibold" : "text-red-400 font-semibold"}>CHF {profit.toFixed(2)}</span>{!known && <span className="text-white/30"> (partial)</span>}</span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Action buttons */}

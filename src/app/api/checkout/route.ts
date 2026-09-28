@@ -21,6 +21,30 @@ export async function POST(req: NextRequest) {
     }
 
     const allProducts = getAllProducts();
+
+    // Stock / availability check — ensure every item can actually be sourced and
+    // shipped. If not, tell the customer and offer in-stock replacements.
+    const issues = items
+      .map(({ productId }) => {
+        const product = allProducts.find((p) => p.id === productId);
+        if (product && product.inStock) return null;
+        const name = product?.name ?? "This product";
+        const category = product?.category;
+        const replacements = allProducts
+          .filter((p) => p.inStock && p.id !== productId && (!category || p.category === category))
+          .sort((a, b) => Math.abs((a.priceCHF) - (product?.priceCHF ?? a.priceCHF)) - Math.abs((b.priceCHF) - (product?.priceCHF ?? b.priceCHF)))
+          .slice(0, 3);
+        return { productId, productName: name, reason: product ? "Out of stock" : "No longer available", replacements };
+      })
+      .filter(Boolean);
+
+    if (issues.length > 0) {
+      return NextResponse.json(
+        { error: "Some items are no longer available", issues },
+        { status: 409 }
+      );
+    }
+
     const orderItems = items.map(({ productId, quantity }) => {
       const product = allProducts.find((p) => p.id === productId);
       if (!product) throw new Error(`Product ${productId} not found`);
