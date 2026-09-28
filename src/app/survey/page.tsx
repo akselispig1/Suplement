@@ -69,7 +69,6 @@ export default function SurveyPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to get recommendations");
       setAiResults(data.recommendations);
-      setStep("browse");
     } catch (err) {
       setAiError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -217,6 +216,36 @@ export default function SurveyPage() {
               </button>
             </div>
 
+            {/* AI results — inline, same page */}
+            {aiResults && aiResults.length > 0 && (
+              <div className="mb-8 fade-up">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-bold text-emerald-300 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" /> {aiResults.length} AI recommendations
+                  </h2>
+                  <button
+                    onClick={addSelectedToCart}
+                    disabled={selectedProducts.size === 0}
+                    className="btn-primary text-sm px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <ShoppingCart className="w-4 h-4" /> Add {selectedProducts.size || ""} to cart
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {aiResults.map((r) => (
+                    <ProductCard
+                      key={r.product.id}
+                      product={r.product}
+                      reason={r.reason}
+                      showSelect
+                      selected={selectedProducts.has(r.product.id)}
+                      onToggleSelect={() => toggleProduct(r.product.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-center">
               <button onClick={() => setStep("browse")} className="text-sm text-white/40 hover:text-white transition-colors">Skip →</button>
               <button onClick={() => setStep("preferences")} className="btn-primary flex items-center gap-2 px-6 py-3 rounded-xl">
@@ -269,25 +298,6 @@ export default function SurveyPage() {
               <span className="text-white font-semibold">{matches.length} curated matches</span>
               {selectedGoals.length > 0 && <> for your {selectedGoals.length} goal{selectedGoals.length !== 1 ? "s" : ""}</>}. Tap to add them to your stack.
             </p>
-            {aiResults && aiResults.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-sm font-bold text-emerald-300 mb-4 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> AI recommendations for you
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {aiResults.map((r) => (
-                    <ProductCard
-                      key={r.product.id}
-                      product={r.product}
-                      reason={r.reason}
-                      showSelect
-                      selected={selectedProducts.has(r.product.id)}
-                      onToggleSelect={() => toggleProduct(r.product.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
             {Object.entries(byCategory).map(([cat, prods]) => (
               <div key={cat} className="mb-10">
                 <h2 className="text-sm font-bold text-white/70 mb-4 flex items-center gap-2">
