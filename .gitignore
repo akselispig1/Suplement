@@ -46,3 +46,6 @@ data/products.json
 data/.seed-version
 # Uploaded product photos
 public/images/uploads
+
+# Netlify
+.netlify
