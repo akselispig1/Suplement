@@ -1,121 +1,51 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowRight, Sparkles, ClipboardList, ShieldCheck, Package, Zap, Cpu } from "lucide-react";
-import ProductCard from "@/components/ProductCard";
-import { Product } from "@/types/product";
-import { useCart } from "@/context/CartContext";
+import { ArrowRight, Sparkles, ClipboardList, ShieldCheck, Package, Zap } from "lucide-react";
+import AiChat from "@/components/AiChat";
 
 export default function HomePage() {
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<{ product: Product; reason: string }[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleRecommend(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setLoading(true);
-    setError(null);
-    setResults(null);
-    try {
-      const res = await fetch("/api/recommend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to get recommendations");
-      setResults(data.recommendations);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden px-4 pt-24 pb-28">
         <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_75%)]" />
         <div className="glow glow-emerald glow-pulse w-[520px] h-[520px] -top-40 left-1/2 -translate-x-1/2" />
-        <div className="glow glow-cyan glow-pulse w-[360px] h-[360px] top-20 -right-20" />
         <div className="relative max-w-4xl mx-auto text-center fade-up">
           <div className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-sm font-medium mb-8 text-emerald-300">
-            <Zap className="w-4 h-4" /> 120+ evidence-rated supplements
+            <Zap className="w-4 h-4" /> 470+ evidence-rated supplements
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
             Supplements, matched<br />
             to <span className="gradient-text">your goals</span>
           </h1>
           <p className="text-lg sm:text-xl text-[var(--muted)] max-w-2xl mx-auto mb-10 leading-relaxed">
-            Tell us what you want to improve and get a personalised stack from evidence-rated products — or take the guided quiz. Everything ships as one package.
+            Chat with our adviser about what you want to improve and get a personalised stack from evidence-rated products — or take the guided quiz. Everything ships as one package.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/survey" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl">
-              <ClipboardList className="w-5 h-5" /> Take the Quiz
-            </Link>
-            <a href="#ai-recommend" className="btn-ghost inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold">
-              <Sparkles className="w-5 h-5 text-emerald-400" /> Ask AI
+            <a href="#ai-chat" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl">
+              <Sparkles className="w-5 h-5" /> Chat with the adviser
             </a>
+            <Link href="/survey" className="btn-ghost inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold">
+              <ClipboardList className="w-5 h-5 text-emerald-400" /> Take the Quiz
+            </Link>
           </div>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-[var(--muted)]">
-            {["Evidence-rated products", "One package, free shipping", "TWINT checkout", "No subscription traps"].map((t) => (
+            {["Evidence-rated products", "One package delivery", "TWINT checkout", "No subscription traps"].map((t) => (
               <span key={t} className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-400" /> {t}</span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* AI Recommender */}
-      <section id="ai-recommend" className="relative max-w-3xl mx-auto px-4 py-20 scroll-mt-20">
-        <div className="glass rounded-3xl p-8 sm:p-10 relative overflow-hidden">
-          <div className="glow glow-emerald w-64 h-64 -top-24 -left-24 opacity-30" />
-          <div className="relative">
-            <div className="text-center mb-8">
-              <div className="eyebrow text-emerald-400 mb-3 flex items-center justify-center gap-2">
-                <Cpu className="w-3.5 h-3.5" /> AI Recommender
-              </div>
-              <h2 className="text-3xl font-bold text-white mb-3">Describe your goals</h2>
-              <p className="text-[var(--muted)]">Tell us what you&apos;re trying to achieve. Our AI suggests products from our catalog.</p>
-            </div>
-            <form onSubmit={handleRecommend} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. better sleep, less stress, more energy at the gym…"
-                className="field flex-1 rounded-xl px-4 py-3.5 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={loading || !query.trim()}
-                className="btn-primary px-6 py-3.5 rounded-xl flex items-center justify-center gap-2"
-              >
-                {loading ? <span className="animate-spin w-4 h-4 border-2 border-[#04120f] border-t-transparent rounded-full" /> : <Sparkles className="w-4 h-4" />}
-                {loading ? "Thinking…" : "Suggest"}
-              </button>
-            </form>
-            {error && <p className="mt-4 text-red-400 text-sm text-center">{error}</p>}
-          </div>
+      {/* AI Chat */}
+      <section id="ai-chat" className="relative max-w-3xl mx-auto px-4 py-16 scroll-mt-20">
+        <div className="text-center mb-8">
+          <div className="eyebrow text-emerald-400 mb-3">Ask the adviser</div>
+          <h2 className="text-3xl font-bold text-white mb-3">Not sure what to take?</h2>
+          <p className="text-[var(--muted)]">Have a conversation about your goals — it&apos;ll ask a few questions and suggest products that fit.</p>
         </div>
-        {results && (
-          <div className="mt-8 fade-up">
-            <div className="mb-4 glass rounded-lg px-3 py-2 text-xs text-amber-300/90 border-amber-500/20">
-              📚 Educational suggestions only — not medical advice. Consult a healthcare professional before starting any supplement.
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-white">{results.length} suggestions for you</h3>
-              <AddAllButton results={results} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {results.map((r) => (
-                <ProductCard key={r.product.id} product={r.product} reason={r.reason} />
-              ))}
-            </div>
-          </div>
-        )}
+        <AiChat />
+        <p className="mt-3 text-center text-xs text-white/40">Educational suggestions only — not medical advice. Consult a healthcare professional before starting any supplement.</p>
       </section>
 
       {/* How it works */}
@@ -127,7 +57,7 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: <Sparkles className="w-6 h-6" />, title: "Discover", text: "Use AI or take the quiz to find products matched to your goals.", n: "01" },
+              { icon: <Sparkles className="w-6 h-6" />, title: "Discover", text: "Chat with the adviser or take the quiz to find products matched to your goals.", n: "01" },
               { icon: <Package className="w-6 h-6" />, title: "Bundle", text: "Add items to your cart — everything ships as one package.", n: "02" },
               { icon: <ShieldCheck className="w-6 h-6" />, title: "Done", text: "Fast TWINT checkout, then we handle the rest.", n: "03" },
             ].map((s) => (
@@ -156,17 +86,5 @@ export default function HomePage() {
         </div>
       </section>
     </div>
-  );
-}
-
-function AddAllButton({ results }: { results: { product: Product; reason: string }[] }) {
-  const { addItem } = useCart();
-  return (
-    <button
-      onClick={() => results.filter((r) => r.product.inStock).forEach((r) => addItem(r.product))}
-      className="btn-primary text-sm px-4 py-2 rounded-lg"
-    >
-      Add All to Cart
-    </button>
   );
 }

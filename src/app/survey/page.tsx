@@ -5,7 +5,7 @@ import { products } from "@/data/catalog";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import ProductCard from "@/components/ProductCard";
-import { ChevronRight, ChevronLeft, ShoppingCart, Check, Sparkles } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShoppingCart, Check } from "lucide-react";
 
 type Step = "goals" | "preferences" | "browse" | "summary";
 
@@ -43,38 +43,7 @@ export default function SurveyPage() {
   const [formPref, setFormPref] = useState<string>("any");
   const [budget, setBudget] = useState<string>("no limit");
   const [age, setAge] = useState<string>("");
-  const [goalText, setGoalText] = useState<string>("");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [aiResults, setAiResults] = useState<{ product: Product; reason: string }[] | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
-
-  async function askAI() {
-    const parts: string[] = [];
-    if (goalText.trim()) parts.push(goalText.trim());
-    if (selectedGoals.length > 0) {
-      parts.push("Goals: " + selectedGoals.map((id) => GOAL_OPTIONS.find((g) => g.id === id)?.label ?? id).join(", "));
-    }
-    if (age) parts.push(`Age: ${age} (only recommend supplements appropriate for this age — do not suggest children's products to adults or adult products to children).`);
-    if (vegan === true) parts.push("Must be vegan-friendly.");
-    const query = parts.join(". ");
-    if (!query.trim()) { setAiError("Type a goal or pick at least one option first."); return; }
-    setAiLoading(true); setAiError(null);
-    try {
-      const res = await fetch("/api/recommend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to get recommendations");
-      setAiResults(data.recommendations);
-    } catch (err) {
-      setAiError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setAiLoading(false);
-    }
-  }
 
   const evidenceRank: Record<string, number> = { strong: 0, moderate: 1, emerging: 2 };
 
@@ -191,60 +160,6 @@ export default function SurveyPage() {
                 ))}
               </div>
             </div>
-
-            {/* Describe to AI */}
-            <div className="glass rounded-2xl p-5 mb-8">
-              <p className="font-semibold text-white mb-1 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-400" /> Or describe your goal to our AI
-              </p>
-              <p className="text-sm text-[var(--muted)] mb-3">In your own words — use this instead of, or together with, the options above.</p>
-              <textarea
-                value={goalText}
-                onChange={(e) => setGoalText(e.target.value)}
-                rows={3}
-                placeholder="e.g. I'm 34, training for a marathon, and struggle with sleep and sore knees…"
-                className="field w-full rounded-xl px-4 py-3 text-sm resize-none"
-              />
-              {aiError && <p className="text-red-400 text-sm mt-2">{aiError}</p>}
-              <button
-                onClick={askAI}
-                disabled={aiLoading || (!goalText.trim() && selectedGoals.length === 0)}
-                className="btn-primary mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl"
-              >
-                {aiLoading ? <span className="animate-spin w-4 h-4 border-2 border-[#04140e] border-t-transparent rounded-full" /> : <Sparkles className="w-4 h-4" />}
-                {aiLoading ? "Thinking…" : "Get AI recommendations"}
-              </button>
-            </div>
-
-            {/* AI results — inline, same page */}
-            {aiResults && aiResults.length > 0 && (
-              <div className="mb-8 fade-up">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-bold text-emerald-300 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" /> {aiResults.length} AI recommendations
-                  </h2>
-                  <button
-                    onClick={addSelectedToCart}
-                    disabled={selectedProducts.size === 0}
-                    className="btn-primary text-sm px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
-                  >
-                    <ShoppingCart className="w-4 h-4" /> Add {selectedProducts.size || ""} to cart
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {aiResults.map((r) => (
-                    <ProductCard
-                      key={r.product.id}
-                      product={r.product}
-                      reason={r.reason}
-                      showSelect
-                      selected={selectedProducts.has(r.product.id)}
-                      onToggleSelect={() => toggleProduct(r.product.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="flex justify-between items-center">
               <button onClick={() => setStep("browse")} className="text-sm text-white/40 hover:text-white transition-colors">Skip →</button>
