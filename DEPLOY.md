@@ -12,16 +12,7 @@ The app is a standard Next.js 16 app. It builds to a self-contained server
 
 ## Fastest live URL (no server to manage)
 
-**Vercel** (best fit for Next.js):
-1. Push this repo to GitHub (already done).
-2. Go to vercel.com → New Project → import the repo.
-3. Framework preset: Next.js (auto). Click Deploy. You get a public URL in ~2 min.
-
-**Netlify**:
-1. netlify.com → Add new site → Import from GitHub → pick the repo.
-2. Netlify auto-detects Next.js. Deploy.
-
-Set any needed env vars in the dashboard (see below).
+This project deploys to **AWS** (see below).
 
 ## AWS
 
