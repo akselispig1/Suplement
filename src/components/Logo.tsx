@@ -6,8 +6,7 @@ export function LogoMark({ className = "w-8 h-8" }: { className?: string }) {
       <defs>
         <linearGradient id="ssg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
           <stop stopColor="#34d399" />
-          <stop offset="0.55" stopColor="#22d3ee" />
-          <stop offset="1" stopColor="#818cf8" />
+          <stop offset="1" stopColor="#059669" />
         </linearGradient>
       </defs>
       {/* stacked layers — the "stack" */}
@@ -23,7 +22,7 @@ export default function Logo({ className = "" }: { className?: string }) {
   return (
     <Link href="/" className={`flex items-center gap-2.5 font-bold text-lg text-white group ${className}`}>
       <span className="relative flex items-center justify-center">
-        <span className="absolute inset-0 rounded-full blur-md bg-emerald-400/40 group-hover:bg-emerald-400/60 transition-colors" />
+        <span className="absolute inset-0 rounded-full blur-md bg-emerald-500/20 group-hover:bg-emerald-500/30 transition-colors" />
         <LogoMark className="relative w-8 h-8 group-hover:scale-105 transition-transform" />
       </span>
       <span className="tracking-tight">

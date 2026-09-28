@@ -43,14 +43,14 @@ export default function HomePage() {
         <div className="glow glow-cyan glow-pulse w-[360px] h-[360px] top-20 -right-20" />
         <div className="relative max-w-4xl mx-auto text-center fade-up">
           <div className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-sm font-medium mb-8 text-emerald-300">
-            <Zap className="w-4 h-4" /> 200+ science-backed supplements
+            <Zap className="w-4 h-4" /> 120+ evidence-rated supplements
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
-            Your perfect stack,<br />
-            <span className="gradient-text">engineered by AI</span>
+            Supplements, matched<br />
+            to <span className="gradient-text">your goals</span>
           </h1>
           <p className="text-lg sm:text-xl text-[var(--muted)] max-w-2xl mx-auto mb-10 leading-relaxed">
-            Describe your goals and our AI assembles a personalised supplement stack — or take the guided quiz. Everything ships as one package.
+            Tell us what you want to improve and get a personalised stack from evidence-rated products — or take the guided quiz. Everything ships as one package.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link href="/survey" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl">
@@ -133,7 +133,7 @@ export default function HomePage() {
             ].map((s) => (
               <div key={s.title} className="glass glass-hover rounded-2xl p-6 relative">
                 <span className="absolute top-5 right-6 font-mono text-xs text-white/20">{s.n}</span>
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 border border-emerald-500/30 text-emerald-300 flex items-center justify-center mb-4">{s.icon}</div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 flex items-center justify-center mb-4">{s.icon}</div>
                 <h3 className="font-semibold text-white mb-2">{s.title}</h3>
                 <p className="text-[var(--muted)] text-sm leading-relaxed">{s.text}</p>
               </div>
@@ -147,7 +147,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto glass rounded-3xl p-12 text-center relative overflow-hidden">
           <div className="glow glow-cyan w-72 h-72 -bottom-32 left-1/2 -translate-x-1/2 opacity-40" />
           <div className="relative">
-            <h2 className="text-3xl font-bold text-white mb-3">Browse 200+ products</h2>
+            <h2 className="text-3xl font-bold text-white mb-3">Browse the full range</h2>
             <p className="text-[var(--muted)] mb-8">Filter by category, goal, or evidence strength.</p>
             <Link href="/products" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl">
               Shop All <ArrowRight className="w-4 h-4" />
