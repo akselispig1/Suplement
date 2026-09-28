@@ -9,7 +9,13 @@ const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
 const SEED_MARKER = path.join(DATA_DIR, ".seed-version");
 
 // Bump this whenever the catalog is replaced so existing stores re-seed.
-const SEED_VERSION = "2026-07-real-catalog-v3-94products";
+const SEED_VERSION = "2026-07-real-catalog-v4-124products";
+
+// In-memory fallback used when the filesystem is read-only (serverless hosting
+// such as Netlify / Vercel / AWS Lambda). Edits then persist only for the life
+// of the running instance, but the store always loads and displays correctly.
+let memoryStore: Product[] | null = null;
+let usingMemory = false;
 
 /** Ensure operator fields exist so the admin always has a buy link + costs. */
 function withDefaults(p: Product): Product {
@@ -21,21 +27,43 @@ function withDefaults(p: Product): Product {
   };
 }
 
-function ensureStore(): Product[] {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+function seedClone(): Product[] {
+  return JSON.parse(JSON.stringify(seedProducts)) as Product[];
+}
 
-  const currentVersion = fs.existsSync(SEED_MARKER) ? fs.readFileSync(SEED_MARKER, "utf-8").trim() : "";
-  if (!fs.existsSync(PRODUCTS_FILE) || currentVersion !== SEED_VERSION) {
-    // First run, or the catalog was replaced — (re)seed from the real catalog.
-    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(seedProducts, null, 2));
-    fs.writeFileSync(SEED_MARKER, SEED_VERSION);
+function ensureStore(): Product[] {
+  // If we've already fallen back to memory, keep using it.
+  if (usingMemory && memoryStore) return memoryStore.map(withDefaults);
+
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    const currentVersion = fs.existsSync(SEED_MARKER) ? fs.readFileSync(SEED_MARKER, "utf-8").trim() : "";
+    if (!fs.existsSync(PRODUCTS_FILE) || currentVersion !== SEED_VERSION) {
+      fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(seedProducts, null, 2));
+      fs.writeFileSync(SEED_MARKER, SEED_VERSION);
+    }
+    const raw = JSON.parse(fs.readFileSync(PRODUCTS_FILE, "utf-8")) as Product[];
+    return raw.map(withDefaults);
+  } catch {
+    // Read-only filesystem (serverless) — serve the catalog from memory.
+    usingMemory = true;
+    if (!memoryStore) memoryStore = seedClone();
+    return memoryStore.map(withDefaults);
   }
-  const raw = JSON.parse(fs.readFileSync(PRODUCTS_FILE, "utf-8")) as Product[];
-  return raw.map(withDefaults);
 }
 
 function save(products: Product[]) {
-  fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+  if (usingMemory) {
+    memoryStore = products;
+    return;
+  }
+  try {
+    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+  } catch {
+    // Fell back to read-only mid-session — switch to memory.
+    usingMemory = true;
+    memoryStore = products;
+  }
 }
 
 export function getAllProducts(): Product[] {
