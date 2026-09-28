@@ -77,17 +77,32 @@ export default function SurveyPage() {
     }
   }
 
-  const relevantProducts = products.filter((p) => {
-    if (selectedGoals.length > 0 && !p.goals.some((g) => selectedGoals.includes(g))) return false;
+  const evidenceRank: Record<string, number> = { strong: 0, moderate: 1, emerging: 2 };
+
+  function passesPrefs(p: Product) {
     if (vegan === true && ["softgel", "gummy"].includes(p.form)) return false;
     if (formPref !== "any" && p.form !== formPref) return false;
     if (budget === "under 30" && p.priceCHF >= 30) return false;
     if (budget === "30–60" && (p.priceCHF < 30 || p.priceCHF > 60)) return false;
     if (budget === "60+" && p.priceCHF < 60) return false;
     return true;
-  });
+  }
 
-  const byCategory = relevantProducts.reduce((acc: Record<string, Product[]>, p) => {
+  // Ranked, capped matches — most goal-relevant first — so we don't dump the
+  // whole catalog. With no goals picked, show top evidence-rated products.
+  const matches = products
+    .filter(passesPrefs)
+    .filter((p) => selectedGoals.length === 0 || p.goals.some((g) => selectedGoals.includes(g)))
+    .map((p) => ({ p, score: p.goals.filter((g) => selectedGoals.includes(g)).length }))
+    .sort((a, b) =>
+      b.score - a.score ||
+      (evidenceRank[a.p.evidenceStrength] ?? 3) - (evidenceRank[b.p.evidenceStrength] ?? 3) ||
+      a.p.priceCHF - b.p.priceCHF
+    )
+    .slice(0, selectedGoals.length > 0 ? Math.min(6 * selectedGoals.length, 30) : 12)
+    .map((x) => x.p);
+
+  const byCategory = matches.reduce((acc: Record<string, Product[]>, p) => {
     if (!acc[p.category]) acc[p.category] = [];
     acc[p.category].push(p);
     return acc;
@@ -239,7 +254,7 @@ export default function SurveyPage() {
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
               <button onClick={() => setStep("browse")} className="btn-primary flex items-center gap-2 px-6 py-3 rounded-xl">
-                See {relevantProducts.length} Matches <ChevronRight className="w-4 h-4" />
+                See your matches <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -251,8 +266,8 @@ export default function SurveyPage() {
             <div className="eyebrow text-emerald-400 mb-3">Step 3</div>
             <h1 className="text-4xl font-bold text-white mb-2">Your matches</h1>
             <p className="text-[var(--muted)] mb-6">
-              <span className="text-white font-semibold">{relevantProducts.length} products</span> matched
-              {selectedGoals.length > 0 && <> your {selectedGoals.length} goal{selectedGoals.length !== 1 ? "s" : ""}</>}. Tap to add them to your stack.
+              <span className="text-white font-semibold">{matches.length} curated matches</span>
+              {selectedGoals.length > 0 && <> for your {selectedGoals.length} goal{selectedGoals.length !== 1 ? "s" : ""}</>}. Tap to add them to your stack.
             </p>
             {aiResults && aiResults.length > 0 && (
               <div className="mb-10">
@@ -292,7 +307,7 @@ export default function SurveyPage() {
                 </div>
               </div>
             ))}
-            {relevantProducts.length === 0 && (
+            {matches.length === 0 && (
               <div className="glass rounded-2xl p-10 text-center text-[var(--muted)]">
                 No products match your filters.{" "}
                 <button className="text-emerald-400 underline" onClick={() => { setFormPref("any"); setBudget("no limit"); setVegan(null); }}>Reset preferences</button>

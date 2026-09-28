@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllProducts } from "@/lib/product-store";
 import { createOrder } from "@/lib/orders";
+import { shippingFor } from "@/lib/shipping";
 import { randomUUID } from "crypto";
 import { Order } from "@/types/product";
 
@@ -26,7 +27,9 @@ export async function POST(req: NextRequest) {
       return { productId, productName: product.name, quantity, priceCHF: product.priceCHF };
     });
 
-    const totalCHF = orderItems.reduce((s, i) => s + i.priceCHF * i.quantity, 0);
+    const subtotalCHF = orderItems.reduce((s, i) => s + i.priceCHF * i.quantity, 0);
+    const shippingCHF = shippingFor(subtotalCHF);
+    const totalCHF = subtotalCHF + shippingCHF;
     const orderId = `SS-${Date.now()}-${randomUUID().slice(0, 6).toUpperCase()}`;
 
     const order: Order = {
@@ -40,6 +43,8 @@ export async function POST(req: NextRequest) {
         country: shippingAddress?.country || "CH",
       },
       items: orderItems,
+      subtotalCHF,
+      shippingCHF,
       totalCHF,
       stripeSessionId: "",
       status: "awaiting_payment",
@@ -48,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     createOrder(order);
 
-    return NextResponse.json({ orderId, totalCHF });
+    return NextResponse.json({ orderId, totalCHF, subtotalCHF, shippingCHF });
   } catch (err) {
     console.error("[checkout]", err);
     return NextResponse.json({ error: err instanceof Error ? err.message : "Checkout failed" }, { status: 500 });

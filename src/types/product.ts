@@ -53,6 +53,8 @@ export type Order = {
     quantity: number;
     priceCHF: number;
   }[];
+  subtotalCHF?: number;
+  shippingCHF?: number;
   totalCHF: number;
   stripeSessionId: string;
   status: "awaiting_payment" | "to_ship" | "shipped" | "cancelled";

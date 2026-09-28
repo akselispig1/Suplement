@@ -5,9 +5,11 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductImg from "@/components/ProductImg";
+import { shippingFor, SHIPPING_FEE_CHF, FREE_SHIPPING_OVER_CHF } from "@/lib/shipping";
 
 export default function CartPage() {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
+  const shipping = shippingFor(total);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,11 +132,27 @@ export default function CartPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-white/10 pt-4 flex justify-between font-bold mb-2">
-                <span className="text-white">Total</span>
-                <span className="gradient-text text-lg">CHF {total.toFixed(2)}</span>
+              <div className="border-t border-white/10 pt-4 space-y-2 mb-2 text-sm">
+                <div className="flex justify-between text-[var(--muted)]">
+                  <span>Subtotal</span>
+                  <span className="text-white/80">CHF {total.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[var(--muted)]">
+                  <span>Shipping</span>
+                  <span className={shipping === 0 ? "text-emerald-400 font-medium" : "text-white/80"}>
+                    {shipping === 0 ? "FREE" : `CHF ${shipping.toFixed(2)}`}
+                  </span>
+                </div>
+                <div className="flex justify-between font-bold pt-2 border-t border-white/10">
+                  <span className="text-white">Total</span>
+                  <span className="gradient-text text-lg">CHF {(total + shipping).toFixed(2)}</span>
+                </div>
               </div>
-              <p className="text-xs text-white/40 mb-5">Free shipping · Switzerland</p>
+              <p className="text-xs text-white/40 mb-5">
+                {shipping === 0
+                  ? `Includes free shipping (orders over CHF ${FREE_SHIPPING_OVER_CHF}).`
+                  : `Total includes CHF ${SHIPPING_FEE_CHF.toFixed(2)} shipping. Free over CHF ${FREE_SHIPPING_OVER_CHF} — add CHF ${(FREE_SHIPPING_OVER_CHF - total).toFixed(2)} more to qualify.`}
+              </p>
 
               {/* TWINT badge */}
               <div className="flex items-center gap-2 glass rounded-xl px-3 py-2 mb-4">
