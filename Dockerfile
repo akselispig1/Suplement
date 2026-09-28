@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY . .
+ENV BUILD_STANDALONE=1
 RUN npm run build
 
 # ---- Runtime stage ----
