@@ -25,6 +25,8 @@ export default function ProductsPage() {
   const [goal, setGoal] = useState("");
   const [evidence, setEvidence] = useState("");
   const [sort, setSort] = useState<SortKey>("recommended");
+  const PAGE = 60;
+  const [limit, setLimit] = useState(PAGE);
 
   const filtered = useMemo(() => {
     let list = [...products];
@@ -59,7 +61,18 @@ export default function ProductsPage() {
     setGoal("");
     setEvidence("");
     setSort("recommended");
+    setLimit(PAGE);
   }
+
+  // Reset how many are shown whenever the filter/sort inputs change
+  // (React's supported "adjust state during render" pattern).
+  const filterKey = `${search}|${category}|${goal}|${evidence}|${sort}`;
+  const [prevKey, setPrevKey] = useState(filterKey);
+  if (prevKey !== filterKey) {
+    setPrevKey(filterKey);
+    setLimit(PAGE);
+  }
+  const visible = filtered.slice(0, limit);
 
   const hasFilters = search || category || goal || evidence || sort !== "recommended";
 
@@ -103,10 +116,20 @@ export default function ProductsPage() {
       </div>
 
       <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {filtered.map((p) => (
+        {visible.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
+      {filtered.length > limit && (
+        <div className="text-center mt-8">
+          <button
+            onClick={() => setLimit((l) => l + PAGE)}
+            className="btn-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium"
+          >
+            Load more — showing {visible.length} of {filtered.length}
+          </button>
+        </div>
+      )}
       {filtered.length === 0 && (
         <div className="text-center py-20 text-white/40">
           <p className="text-lg font-medium">No products found</p>

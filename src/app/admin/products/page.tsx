@@ -53,16 +53,16 @@ export default function AdminProductsPage() {
     setCheckState({ running: true, checked: 0, total: 0, delisted: 0 });
     try {
       // Comb the whole catalog in batches so it never times out.
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
+      let more = true;
+      while (more) {
         const res = await fetch(`/api/admin/check-stock?offset=${offset}&limit=30`);
         if (!res.ok) throw new Error("check failed");
         const data = await res.json();
         total = data.total;
         delisted += (data.delisted?.length ?? 0);
         setCheckState({ running: true, checked: data.checked, total, delisted });
-        if (data.done || data.nextOffset == null) break;
-        offset = data.nextOffset;
+        if (data.done || data.nextOffset == null) more = false;
+        else offset = data.nextOffset;
       }
     } catch {
       // stop silently on error; show what we have
@@ -71,6 +71,7 @@ export default function AdminProductsPage() {
     await load();
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load
   useEffect(() => { load(); }, []);
 
   const filtered = products.filter((p) =>
@@ -128,7 +129,7 @@ export default function AdminProductsPage() {
       }
     }
     setUploadingId(null);
-    e.target.value = "";
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   function toggleGoal(goal: string) {

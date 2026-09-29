@@ -42,6 +42,7 @@ export default function AdminOrdersPage() {
     if (res.ok) fetchOrders();
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load
   useEffect(() => { fetchOrders(); }, []);
 
   const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);

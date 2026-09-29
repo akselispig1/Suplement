@@ -7,9 +7,9 @@ const config: Record<EvidenceStrength, { label: string; className: string }> = {
 };
 
 export default function EvidenceBadge({ strength }: { strength: EvidenceStrength }) {
-  const { label, className } = config[strength];
+  const { className } = config[strength];
   return (
-    <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${className}`}>
+    <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${className}`} title={config[strength].label}>
       {strength === "strong" ? "★★★" : strength === "moderate" ? "★★" : "★"}
     </span>
   );

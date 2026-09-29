@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import { LogoMark } from "@/components/Logo";
+import Link from "next/link";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -32,9 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div>
                   <div className="eyebrow text-white/60 mb-3">Explore</div>
                   <ul className="space-y-2">
-                    <li><a href="/products" className="hover:text-emerald-400 transition-colors">Shop All Products</a></li>
-                    <li><a href="/survey" className="hover:text-emerald-400 transition-colors">Find My Stack</a></li>
-                    <li><a href="/about" className="hover:text-emerald-400 transition-colors">About</a></li>
+                    <li><Link href="/products" className="hover:text-emerald-400 transition-colors">Shop All Products</Link></li>
+                    <li><Link href="/survey" className="hover:text-emerald-400 transition-colors">Find My Stack</Link></li>
+                    <li><Link href="/about" className="hover:text-emerald-400 transition-colors">About</Link></li>
                   </ul>
                 </div>
                 <div>
