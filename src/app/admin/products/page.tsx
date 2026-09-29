@@ -358,7 +358,7 @@ export default function AdminProductsPage() {
                 </div>
                 {editing.supplierCostCHF ? (
                   <p className="text-xs text-white/40">
-                    Suggested sell price (cost × 1.15): <span className="text-emerald-400 font-semibold">CHF {(editing.supplierCostCHF * 1.15).toFixed(2)}</span>
+                    Suggested sell price (cost × 1.20): <span className="text-emerald-400 font-semibold">CHF {(editing.supplierCostCHF * 1.20).toFixed(2)}</span>
                   </p>
                 ) : null}
               </div>

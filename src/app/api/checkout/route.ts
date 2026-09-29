@@ -3,112 +3,143 @@ import { getAllProducts } from "@/lib/product-store";
 import { createOrder } from "@/lib/orders";
 import { shippingFor } from "@/lib/shipping";
 import { randomUUID } from "crypto";
-import { Order } from "@/types/product";
+import { Order, Product } from "@/types/product";
+
+const MAX_LINE_QTY = 20;
+const MAX_LINES = 50;
+
+/** Simple in-memory per-IP rate limiter (best-effort; resets on redeploy). */
+const hits = new Map<string, number[]>();
+function rateLimited(ip: string, max = 12, windowMs = 60_000): boolean {
+  const now = Date.now();
+  const arr = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
+  arr.push(now);
+  hits.set(ip, arr);
+  return arr.length > max;
+}
+
+function clean(v: unknown, max = 200): string {
+  return typeof v === "string" ? v.trim().slice(0, max) : "";
+}
 
 /**
- * Live availability check against the supplier's Shopify feed.
- * Returns false ONLY when the product page is gone (404 = delisted/unavailable).
- * Returns true when the feed clearly marks it buyable; otherwise null (unknown),
- * because most of these shops report `available:false` even for in-stock items,
- * so that flag can't be trusted to block an order.
+ * The only reliable live signal from these suppliers is whether the product page
+ * still exists. A 404/410 means it's been delisted -> genuinely unavailable.
+ * The public `available` flag is NOT trustworthy (shops report false for buyable
+ * items), so we never block on it. Bounded, best-effort, never throws.
  */
-async function liveAvailable(supplierUrl?: string): Promise<boolean | null> {
-  if (!supplierUrl) return null;
+async function isDelisted(supplierUrl?: string): Promise<boolean> {
+  if (!supplierUrl) return false;
   try {
     const u = new URL(supplierUrl);
-    if (!u.pathname.includes("/products/")) return null;
-    const jsonUrl = `${u.origin}${u.pathname.replace(/\/+$/, "")}.json`;
-    const res = await fetch(jsonUrl, {
+    if (!u.pathname.includes("/products/")) return false;
+    const res = await fetch(`${u.origin}${u.pathname.replace(/\/+$/, "")}.json`, {
+      method: "GET",
       headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(5000),
     });
-    if (res.status === 404 || res.status === 410) return false; // product removed
-    if (!res.ok) return null;
-    const j = await res.json();
-    const variants = j?.product?.variants;
-    if (Array.isArray(variants) && variants.some((v: { available?: boolean }) => v.available === true)) return true;
-    return null; // inconclusive — don't block on the unreliable sold-out flag
+    return res.status === 404 || res.status === 410;
   } catch {
-    return null; // network/timeout/parse — unknown, fall back to admin flag
+    return false; // network/timeout -> don't block
   }
+}
+
+function replacementsFor(product: Product | undefined, all: Product[]) {
+  const category = product?.category;
+  return all
+    .filter((p) => p.inStock && p.id !== product?.id && (!category || p.category === category))
+    .sort((a, b) => Math.abs(a.priceCHF - (product?.priceCHF ?? a.priceCHF)) - Math.abs(b.priceCHF - (product?.priceCHF ?? b.priceCHF)))
+    .slice(0, 3);
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as {
-      items: { productId: string; quantity: number }[];
-      customerName?: string;
-      customerEmail?: string;
-      shippingAddress?: { line1: string; city: string; postalCode: string; country?: string };
-    };
+    const ip = (req.headers.get("x-forwarded-for") ?? "local").split(",")[0].trim();
+    if (rateLimited(ip)) {
+      return NextResponse.json({ error: "Too many attempts. Please wait a moment and try again." }, { status: 429 });
+    }
 
-    const { items, customerName, customerEmail, shippingAddress } = body;
+    const body = await req.json().catch(() => null) as {
+      items?: { productId?: unknown; quantity?: unknown }[];
+      customerName?: unknown; customerEmail?: unknown;
+      shippingAddress?: { line1?: unknown; city?: unknown; postalCode?: unknown; country?: unknown };
+    } | null;
 
-    if (!items || items.length === 0) {
+    if (!body || !Array.isArray(body.items) || body.items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+    }
+    if (body.items.length > MAX_LINES) {
+      return NextResponse.json({ error: "Too many items in the cart." }, { status: 400 });
+    }
+
+    // Validate + merge line items (server is the source of truth for what's valid).
+    const wanted = new Map<string, number>();
+    for (const raw of body.items) {
+      const productId = clean(raw?.productId, 40);
+      const qty = Number(raw?.quantity);
+      if (!productId || !Number.isInteger(qty) || qty < 1) {
+        return NextResponse.json({ error: "Invalid item in cart." }, { status: 400 });
+      }
+      const capped = Math.min(qty, MAX_LINE_QTY);
+      wanted.set(productId, Math.min((wanted.get(productId) ?? 0) + capped, MAX_LINE_QTY));
+    }
+
+    // Validate delivery details.
+    const customerName = clean(body.customerName, 120) || "Customer";
+    const customerEmail = clean(body.customerEmail, 160);
+    if (customerEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(customerEmail)) {
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+    }
+    const line1 = clean(body.shippingAddress?.line1, 200);
+    const city = clean(body.shippingAddress?.city, 120);
+    const postalCode = clean(body.shippingAddress?.postalCode, 20);
+    if (!line1 || !city || !postalCode) {
+      return NextResponse.json({ error: "Please complete your delivery address." }, { status: 400 });
     }
 
     const allProducts = getAllProducts();
 
-    // Availability check — verify each item live on the supplier's site, and fall
-    // back to the admin in-stock flag if the live check can't be reached. If an
-    // item can't be sourced, block the order and offer in-stock replacements.
+    // Availability: product must exist AND be in stock (authoritative admin flag),
+    // AND not delisted at the supplier. Anything else -> block with replacements.
     const issues = (
       await Promise.all(
-        items.map(async ({ productId }) => {
+        [...wanted.keys()].map(async (productId) => {
           const product = allProducts.find((p) => p.id === productId);
-          if (product && product.inStock) {
-            const live = await liveAvailable(product.supplierUrl);
-            if (live !== false) return null; // in stock, or unknown -> allow
+          if (!product) {
+            return { productId, productName: "This product", reason: "No longer available", replacements: replacementsFor(undefined, allProducts) };
           }
-          const name = product?.name ?? "This product";
-          const category = product?.category;
-          const replacements = allProducts
-            .filter((p) => p.inStock && p.id !== productId && (!category || p.category === category))
-            .sort((a, b) => Math.abs(a.priceCHF - (product?.priceCHF ?? a.priceCHF)) - Math.abs(b.priceCHF - (product?.priceCHF ?? b.priceCHF)))
-            .slice(0, 3);
-          return {
-            productId,
-            productName: name,
-            reason: !product ? "No longer available" : "Out of stock at the supplier",
-            replacements,
-          };
+          if (!product.inStock) {
+            return { productId, productName: product.name, reason: "Out of stock", replacements: replacementsFor(product, allProducts) };
+          }
+          if (await isDelisted(product.supplierUrl)) {
+            return { productId, productName: product.name, reason: "No longer available from the supplier", replacements: replacementsFor(product, allProducts) };
+          }
+          return null;
         })
       )
     ).filter(Boolean);
 
     if (issues.length > 0) {
-      return NextResponse.json(
-        { error: "Some items are no longer available", issues },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "Some items are no longer available", issues }, { status: 409 });
     }
 
-    const orderItems = items.map(({ productId, quantity }) => {
-      const product = allProducts.find((p) => p.id === productId);
-      if (!product) throw new Error(`Product ${productId} not found`);
+    // Build order from server-side data ONLY — prices/totals can't be tampered by the client.
+    const orderItems = [...wanted.entries()].map(([productId, quantity]) => {
+      const product = allProducts.find((p) => p.id === productId)!;
       return { productId, productName: product.name, quantity, priceCHF: product.priceCHF };
     });
 
-    const subtotalCHF = orderItems.reduce((s, i) => s + i.priceCHF * i.quantity, 0);
+    const subtotalCHF = Math.round(orderItems.reduce((s, i) => s + i.priceCHF * i.quantity, 0) * 100) / 100;
     const shippingCHF = shippingFor(subtotalCHF);
-    const totalCHF = subtotalCHF + shippingCHF;
+    const totalCHF = Math.round((subtotalCHF + shippingCHF) * 100) / 100;
     const orderId = `SS-${Date.now()}-${randomUUID().slice(0, 6).toUpperCase()}`;
 
     const order: Order = {
       id: orderId,
-      customerName: customerName || "Customer",
-      customerEmail: customerEmail || "",
-      shippingAddress: {
-        line1: shippingAddress?.line1 || "",
-        city: shippingAddress?.city || "",
-        postalCode: shippingAddress?.postalCode || "",
-        country: shippingAddress?.country || "CH",
-      },
+      customerName, customerEmail,
+      shippingAddress: { line1, city, postalCode, country: clean(body.shippingAddress?.country, 4) || "CH" },
       items: orderItems,
-      subtotalCHF,
-      shippingCHF,
-      totalCHF,
+      subtotalCHF, shippingCHF, totalCHF,
       stripeSessionId: "",
       status: "awaiting_payment",
       createdAt: new Date().toISOString(),
@@ -119,6 +150,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ orderId, totalCHF, subtotalCHF, shippingCHF });
   } catch (err) {
     console.error("[checkout]", err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Checkout failed" }, { status: 500 });
+    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }
