@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { Product, EvidenceStrength, ProductForm } from "@/types/product";
-import { Plus, Pencil, Trash2, X, Check, Upload, RefreshCw, Search, Package, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, Upload, RefreshCw, Search, Package, ExternalLink, ScanSearch } from "lucide-react";
 import Link from "next/link";
 import ProductImg from "@/components/ProductImg";
 
@@ -35,6 +35,7 @@ export default function AdminProductsPage() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<string>("");
+  const [checkState, setCheckState] = useState<{ running: boolean; checked: number; total: number; delisted: number } | null>(null);
 
   async function load() {
     setLoading(true);
@@ -42,6 +43,32 @@ export default function AdminProductsPage() {
     const data = await res.json();
     setProducts(data.products ?? []);
     setLoading(false);
+  }
+
+  async function checkAllStock() {
+    if (checkState?.running) return;
+    let offset = 0;
+    let delisted = 0;
+    let total = 0;
+    setCheckState({ running: true, checked: 0, total: 0, delisted: 0 });
+    try {
+      // Comb the whole catalog in batches so it never times out.
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const res = await fetch(`/api/admin/check-stock?offset=${offset}&limit=30`);
+        if (!res.ok) throw new Error("check failed");
+        const data = await res.json();
+        total = data.total;
+        delisted += (data.delisted?.length ?? 0);
+        setCheckState({ running: true, checked: data.checked, total, delisted });
+        if (data.done || data.nextOffset == null) break;
+        offset = data.nextOffset;
+      }
+    } catch {
+      // stop silently on error; show what we have
+    }
+    setCheckState((s) => (s ? { ...s, running: false } : s));
+    await load();
   }
 
   useEffect(() => { load(); }, []);
@@ -130,6 +157,17 @@ export default function AdminProductsPage() {
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
           <button
+            onClick={checkAllStock}
+            disabled={checkState?.running}
+            className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 border border-emerald-500/30 rounded-xl bg-emerald-500/10 disabled:opacity-60"
+            title="Check every product is still listed at its supplier; mark delisted ones out of stock"
+          >
+            <ScanSearch className={`w-4 h-4 ${checkState?.running ? "animate-pulse" : ""}`} />
+            {checkState?.running
+              ? `Checking ${checkState.checked}/${checkState.total}…`
+              : "Check availability"}
+          </button>
+          <button
             onClick={() => { setEditing({ ...EMPTY }); setIsNew(true); }}
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-700"
           >
@@ -137,6 +175,16 @@ export default function AdminProductsPage() {
           </button>
         </div>
       </div>
+
+      {checkState && !checkState.running && (
+        <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/70">
+          Availability sweep complete — checked {checkState.checked} products,{" "}
+          <span className={checkState.delisted > 0 ? "text-amber-400 font-semibold" : "text-emerald-400 font-semibold"}>
+            {checkState.delisted} delisted
+          </span>{" "}
+          {checkState.delisted > 0 ? "marked out of stock." : "— all good."}
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative mb-6">

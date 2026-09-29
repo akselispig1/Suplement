@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllProducts } from "@/lib/product-store";
 import { createOrder } from "@/lib/orders";
 import { shippingFor } from "@/lib/shipping";
+import { isDelisted } from "@/lib/availability";
 import { randomUUID } from "crypto";
 import { Order, Product } from "@/types/product";
 
@@ -20,42 +21,6 @@ function rateLimited(ip: string, max = 12, windowMs = 60_000): boolean {
 
 function clean(v: unknown, max = 200): string {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
-}
-
-/**
- * The reliable live signal from these suppliers is whether the product still
- * exists on their site. Returns true when it's been delisted/removed:
- *  - HTTP 404/410, or
- *  - a "soft 404" (200 but the JSON has no real product / handle mismatch, i.e.
- *    the store redirected a dead URL to a generic page).
- * The public `available` flag is NOT used (shops report false for buyable items).
- * Best-effort and never throws; a network failure does not block the order.
- */
-async function isDelisted(supplierUrl?: string): Promise<boolean> {
-  if (!supplierUrl) return false;
-  try {
-    const u = new URL(supplierUrl);
-    if (!u.pathname.includes("/products/")) return false;
-    const handle = u.pathname.split("/products/")[1]?.replace(/\/+$/, "").toLowerCase();
-    const res = await fetch(`${u.origin}/products/${handle}.json`, {
-      method: "GET",
-      headers: { accept: "application/json" },
-      redirect: "follow",
-      signal: AbortSignal.timeout(5000),
-    });
-    if (res.status === 404 || res.status === 410) return true;
-    if (!res.ok) return false; // 429/5xx/etc — unknown, don't block
-    const j = await res.json().catch(() => undefined);
-    // Only act on a clean, parseable product response. Anything non-standard
-    // (a store that doesn't serve product JSON) is treated as unknown -> allow.
-    if (j && typeof j === "object" && j.product && j.product.id) {
-      if (j.product.handle && handle && String(j.product.handle).toLowerCase() !== handle) return true; // redirected to a different product
-      return false; // genuine product page still exists
-    }
-    return false; // couldn't confirm -> don't block
-  } catch {
-    return false; // network/timeout -> don't block
-  }
 }
 
 function replacementsFor(product: Product | undefined, all: Product[]) {
