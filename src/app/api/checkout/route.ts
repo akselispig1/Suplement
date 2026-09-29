@@ -23,22 +23,36 @@ function clean(v: unknown, max = 200): string {
 }
 
 /**
- * The only reliable live signal from these suppliers is whether the product page
- * still exists. A 404/410 means it's been delisted -> genuinely unavailable.
- * The public `available` flag is NOT trustworthy (shops report false for buyable
- * items), so we never block on it. Bounded, best-effort, never throws.
+ * The reliable live signal from these suppliers is whether the product still
+ * exists on their site. Returns true when it's been delisted/removed:
+ *  - HTTP 404/410, or
+ *  - a "soft 404" (200 but the JSON has no real product / handle mismatch, i.e.
+ *    the store redirected a dead URL to a generic page).
+ * The public `available` flag is NOT used (shops report false for buyable items).
+ * Best-effort and never throws; a network failure does not block the order.
  */
 async function isDelisted(supplierUrl?: string): Promise<boolean> {
   if (!supplierUrl) return false;
   try {
     const u = new URL(supplierUrl);
     if (!u.pathname.includes("/products/")) return false;
-    const res = await fetch(`${u.origin}${u.pathname.replace(/\/+$/, "")}.json`, {
+    const handle = u.pathname.split("/products/")[1]?.replace(/\/+$/, "").toLowerCase();
+    const res = await fetch(`${u.origin}/products/${handle}.json`, {
       method: "GET",
       headers: { accept: "application/json" },
+      redirect: "follow",
       signal: AbortSignal.timeout(5000),
     });
-    return res.status === 404 || res.status === 410;
+    if (res.status === 404 || res.status === 410) return true;
+    if (!res.ok) return false; // 429/5xx/etc — unknown, don't block
+    const j = await res.json().catch(() => undefined);
+    // Only act on a clean, parseable product response. Anything non-standard
+    // (a store that doesn't serve product JSON) is treated as unknown -> allow.
+    if (j && typeof j === "object" && j.product && j.product.id) {
+      if (j.product.handle && handle && String(j.product.handle).toLowerCase() !== handle) return true; // redirected to a different product
+      return false; // genuine product page still exists
+    }
+    return false; // couldn't confirm -> don't block
   } catch {
     return false; // network/timeout -> don't block
   }

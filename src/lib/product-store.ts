@@ -9,7 +9,7 @@ const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
 const SEED_MARKER = path.join(DATA_DIR, ".seed-version");
 
 // Bump this whenever the catalog is replaced so existing stores re-seed.
-const SEED_VERSION = "2026-07-real-catalog-v12-1229-20pct";
+const SEED_VERSION = "2026-07-real-catalog-v13-2449-eu";
 
 // In-memory fallback used when the filesystem is read-only (serverless hosting
 // such as Netlify / Vercel / AWS Lambda). Edits then persist only for the life
