@@ -1,15 +1,15 @@
 import { EvidenceStrength } from "@/types/product";
 
 const config: Record<EvidenceStrength, { label: string; className: string }> = {
-  strong: { label: "Strong Evidence", className: "bg-green-100 text-green-800" },
-  moderate: { label: "Moderate Evidence", className: "bg-yellow-100 text-yellow-800" },
-  emerging: { label: "Emerging Evidence", className: "bg-blue-100 text-blue-800" },
+  strong: { label: "Strong Evidence", className: "bg-emerald-500/15 text-emerald-700 border border-emerald-500/25" },
+  moderate: { label: "Moderate Evidence", className: "bg-amber-500/15 text-amber-300 border border-amber-500/25" },
+  emerging: { label: "Emerging Evidence", className: "bg-cyan-500/15 text-cyan-700 border border-cyan-500/25" },
 };
 
 export default function EvidenceBadge({ strength }: { strength: EvidenceStrength }) {
-  const { label, className } = config[strength];
+  const { className } = config[strength];
   return (
-    <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${className}`}>
+    <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${className}`} title={config[strength].label}>
       {strength === "strong" ? "★★★" : strength === "moderate" ? "★★" : "★"}
     </span>
   );
