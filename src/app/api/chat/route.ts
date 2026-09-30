@@ -48,7 +48,7 @@ function extractJson(text: string): { reply?: string; recommendations?: { produc
 }
 
 /* ---------- Provider: Google Gemini (free tier) ---------- */
-async function viaGemini(messages: ChatMsg[]) {
+async function viaGemini(messages: ChatMsg[], sys: string) {
   const key = process.env.GEMINI_API_KEY!;
   const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
   const res = await fetch(
@@ -57,7 +57,7 @@ async function viaGemini(messages: ChatMsg[]) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM }] },
+        systemInstruction: { parts: [{ text: sys }] },
         contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
         generationConfig: { temperature: 0.4, maxOutputTokens: 1024, responseMimeType: "application/json" },
       }),
@@ -71,10 +71,10 @@ async function viaGemini(messages: ChatMsg[]) {
 }
 
 /* ---------- Provider: Anthropic ---------- */
-async function viaAnthropic(messages: ChatMsg[]) {
+async function viaAnthropic(messages: ChatMsg[], sys: string) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
-    model: "claude-sonnet-4-6", max_tokens: 1024, system: SYSTEM, messages,
+    model: "claude-sonnet-4-6", max_tokens: 1024, system: sys, messages,
   });
   const text = message.content[0].type === "text" ? message.content[0].text : "";
   const parsed = extractJson(text);
@@ -92,8 +92,8 @@ const GOAL_KW: [RegExp, string][] = [
 ];
 const evidenceRank: Record<string, number> = { strong: 0, moderate: 1, emerging: 2 };
 
-function localReply(messages: ChatMsg[]) {
-  const text = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ").toLowerCase();
+function localReply(messages: ChatMsg[], context = "") {
+  const text = (context + " " + messages.filter((m) => m.role === "user").map((m) => m.content).join(" ")).toLowerCase();
   const goals = GOAL_KW.filter(([re]) => re.test(text)).map(([, g]) => g);
   const vegan = /vegan|plant.?based/.test(text);
   const budgetMatch = text.match(/(\d{2,3})\s*(chf|fr|francs|budget|max)?/);
@@ -130,20 +130,22 @@ function localReply(messages: ChatMsg[]) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = (await req.json()) as { messages: ChatMsg[] };
+    const { messages, context } = (await req.json()) as { messages: ChatMsg[]; context?: string };
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: "No messages" }, { status: 400 });
     }
     const trimmed = messages.slice(-12).map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) }));
+    const ctx = typeof context === "string" ? context.slice(0, 1500) : "";
+    const sys = ctx ? `${SYSTEM}\n\nCURRENT SHOPPER CONTEXT (use it to tailor answers, e.g. about what's in their basket or the product they're viewing):\n${ctx}` : SYSTEM;
 
     let result;
     try {
-      if (process.env.GEMINI_API_KEY) result = await viaGemini(trimmed);
-      else if (process.env.ANTHROPIC_API_KEY) result = await viaAnthropic(trimmed);
-      else result = localReply(trimmed);
+      if (process.env.GEMINI_API_KEY) result = await viaGemini(trimmed, sys);
+      else if (process.env.ANTHROPIC_API_KEY) result = await viaAnthropic(trimmed, sys);
+      else result = localReply(trimmed, ctx);
     } catch (providerErr) {
       console.error("[chat] provider error, using local fallback:", providerErr);
-      result = localReply(trimmed);
+      result = localReply(trimmed, ctx);
     }
 
     return NextResponse.json(result);

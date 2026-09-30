@@ -110,16 +110,16 @@ export default function SurveyPage() {
               <div key={s} className="flex items-center flex-1 last:flex-none">
                 <div className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
-                    i < stepIdx ? "bg-gradient-to-br from-emerald-400 to-cyan-400 text-[#04120f]"
-                    : i === stepIdx ? "glass !border-emerald-500/60 text-emerald-300"
-                    : "glass text-white/30"
+                    i < stepIdx ? "bg-emerald-600 text-[#04120f]"
+                    : i === stepIdx ? "glass !border-emerald-500/60 text-emerald-700"
+                    : "glass text-neutral-400"
                   }`}>
                     {i < stepIdx ? <Check className="w-4 h-4" /> : i + 1}
                   </div>
-                  <span className={`text-xs font-medium hidden sm:block ${i === stepIdx ? "text-white" : "text-white/40"}`}>{STEP_LABELS[s]}</span>
+                  <span className={`text-xs font-medium hidden sm:block ${i === stepIdx ? "text-neutral-900" : "text-neutral-400"}`}>{STEP_LABELS[s]}</span>
                 </div>
                 {i < steps.length - 1 && (
-                  <div className={`flex-1 h-px mx-3 ${i < stepIdx ? "bg-emerald-500/50" : "bg-white/10"}`} />
+                  <div className={`flex-1 h-px mx-3 ${i < stepIdx ? "bg-emerald-500/50" : "bg-neutral-100"}`} />
                 )}
               </div>
             ))}
@@ -129,8 +129,8 @@ export default function SurveyPage() {
         {/* Goals */}
         {step === "goals" && (
           <div className="fade-up">
-            <div className="eyebrow text-emerald-400 mb-3">Step 1</div>
-            <h1 className="text-4xl font-bold text-white mb-2">What are your goals?</h1>
+            <div className="eyebrow text-emerald-600 mb-3">Step 1</div>
+            <h1 className="text-4xl font-bold text-neutral-900 mb-2">What are your goals?</h1>
             <p className="text-[var(--muted)] mb-8">Select all that apply — we&apos;ll match products to each one.</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
               {GOAL_OPTIONS.map((g) => {
@@ -144,8 +144,8 @@ export default function SurveyPage() {
                     }`}
                   >
                     <span className="text-2xl group-hover:scale-110 transition-transform">{g.emoji}</span>
-                    <span className={`font-medium text-sm ${on ? "text-emerald-200" : "text-white/80"}`}>{g.label}</span>
-                    {on && <Check className="w-4 h-4 text-emerald-400 ml-auto" />}
+                    <span className={`font-medium text-sm ${on ? "text-emerald-200" : "text-neutral-700"}`}>{g.label}</span>
+                    {on && <Check className="w-4 h-4 text-emerald-600 ml-auto" />}
                   </button>
                 );
               })}
@@ -153,7 +153,7 @@ export default function SurveyPage() {
 
             {/* Age */}
             <div className="mb-6">
-              <p className="font-semibold text-white mb-3">Your age <span className="text-white/40 font-normal text-sm">— so we only suggest age-appropriate supplements</span></p>
+              <p className="font-semibold text-neutral-900 mb-3">Your age <span className="text-neutral-400 font-normal text-sm">— so we only suggest age-appropriate supplements</span></p>
               <div className="flex flex-wrap gap-2">
                 {["Under 18", "18–29", "30–49", "50–64", "65+"].map((a) => (
                   <Chip key={a} active={age === a} onClick={() => setAge(a)}>{a}</Chip>
@@ -162,7 +162,7 @@ export default function SurveyPage() {
             </div>
 
             <div className="flex justify-between items-center">
-              <button onClick={() => setStep("browse")} className="text-sm text-white/40 hover:text-white transition-colors">Skip →</button>
+              <button onClick={() => setStep("browse")} className="text-sm text-neutral-400 hover:text-neutral-900 transition-colors">Skip →</button>
               <button onClick={() => setStep("preferences")} className="btn-primary flex items-center gap-2 px-6 py-3 rounded-xl">
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -173,8 +173,8 @@ export default function SurveyPage() {
         {/* Preferences */}
         {step === "preferences" && (
           <div className="fade-up">
-            <div className="eyebrow text-emerald-400 mb-3">Step 2</div>
-            <h1 className="text-4xl font-bold text-white mb-2">Your preferences</h1>
+            <div className="eyebrow text-emerald-600 mb-3">Step 2</div>
+            <h1 className="text-4xl font-bold text-neutral-900 mb-2">Your preferences</h1>
             <p className="text-[var(--muted)] mb-8">These help us narrow down to the right products.</p>
             <div className="space-y-8 mb-8">
               <Pref label="Are you vegan?">
@@ -207,17 +207,17 @@ export default function SurveyPage() {
         {/* Browse */}
         {step === "browse" && (
           <div className="fade-up">
-            <div className="eyebrow text-emerald-400 mb-3">Step 3</div>
-            <h1 className="text-4xl font-bold text-white mb-2">Your matches</h1>
+            <div className="eyebrow text-emerald-600 mb-3">Step 3</div>
+            <h1 className="text-4xl font-bold text-neutral-900 mb-2">Your matches</h1>
             <p className="text-[var(--muted)] mb-6">
-              <span className="text-white font-semibold">{matches.length} curated matches</span>
+              <span className="text-neutral-900 font-semibold">{matches.length} curated matches</span>
               {selectedGoals.length > 0 && <> for your {selectedGoals.length} goal{selectedGoals.length !== 1 ? "s" : ""}</>}. Tap to add them to your stack.
             </p>
             {Object.entries(byCategory).map(([cat, prods]) => (
               <div key={cat} className="mb-10">
-                <h2 className="text-sm font-bold text-white/70 mb-4 flex items-center gap-2">
+                <h2 className="text-sm font-bold text-neutral-600 mb-4 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {cat}
-                  <span className="text-white/30 font-normal font-mono text-xs">({prods.length})</span>
+                  <span className="text-neutral-400 font-normal font-mono text-xs">({prods.length})</span>
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {prods.map((p) => (
@@ -235,7 +235,7 @@ export default function SurveyPage() {
             {matches.length === 0 && (
               <div className="glass rounded-2xl p-10 text-center text-[var(--muted)]">
                 No products match your filters.{" "}
-                <button className="text-emerald-400 underline" onClick={() => { setFormPref("any"); setBudget("no limit"); setVegan(null); }}>Reset preferences</button>
+                <button className="text-emerald-600 underline" onClick={() => { setFormPref("any"); setBudget("no limit"); setVegan(null); }}>Reset preferences</button>
               </div>
             )}
             <div className="flex justify-between items-center mt-6">
@@ -256,14 +256,14 @@ export default function SurveyPage() {
         {/* Summary */}
         {step === "summary" && (
           <div className="fade-up">
-            <div className="eyebrow text-emerald-400 mb-3">Step 4</div>
-            <h1 className="text-4xl font-bold text-white mb-2">Your stack</h1>
+            <div className="eyebrow text-emerald-600 mb-3">Step 4</div>
+            <h1 className="text-4xl font-bold text-neutral-900 mb-2">Your stack</h1>
             <p className="text-[var(--muted)] mb-6">{selectedProducts.size} product{selectedProducts.size !== 1 ? "s" : ""} selected. Ready to add to cart?</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
               {products.filter((p) => selectedProducts.has(p.id)).map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
             <div className="glass rounded-2xl p-6 mb-6 flex justify-between items-center">
-              <span className="font-semibold text-white/80">Estimated total</span>
+              <span className="font-semibold text-neutral-700">Estimated total</span>
               <span className="text-2xl font-black gradient-text">
                 CHF {products.filter((p) => selectedProducts.has(p.id)).reduce((s, p) => s + p.priceCHF, 0).toFixed(2)}
               </span>
@@ -286,7 +286,7 @@ export default function SurveyPage() {
 function Pref({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="font-semibold text-white mb-3">{label}</p>
+      <p className="font-semibold text-neutral-900 mb-3">{label}</p>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );

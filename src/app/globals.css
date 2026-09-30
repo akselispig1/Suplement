@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0c10;
-  --surface: #0f1217;
-  --foreground: #eef0f3;
-  --muted: #9aa0ab;
-  --accent: #10b981;
-  --accent-2: #059669;
-  --border: rgba(255, 255, 255, 0.09);
+  --background: #ffffff;
+  --surface: #ffffff;
+  --foreground: #0b0d10;
+  --muted: #6b7280;
+  --accent: #059669;
+  --accent-2: #047857;
+  --border: #e7e8ec;
 }
 
 @theme inline {
@@ -28,69 +28,61 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---- Design system ---- */
+/* ---- Minimalist light design system ---- */
 
-/* Subtle blueprint grid */
+/* Very subtle grid (near-invisible on white) */
 .grid-bg {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: 54px 54px;
+    linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 56px 56px;
 }
 
-/* Soft, static accent glow (restrained) */
-.glow {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(110px);
-  opacity: 0.18;
-  pointer-events: none;
-  z-index: 0;
-}
-.glow-emerald { background: radial-gradient(circle, rgba(16, 185, 129, 0.5), transparent 70%); }
-.glow-cyan { background: radial-gradient(circle, rgba(16, 185, 129, 0.28), transparent 70%); }
+/* Glows are off in the light theme — kept as no-ops so markup still works */
+.glow { display: none; }
+.glow-emerald {}
+.glow-cyan {}
+.glow-pulse {}
 
 /* Card surface */
 .glass {
-  background: rgba(255, 255, 255, 0.025);
+  background: #ffffff;
   border: 1px solid var(--border);
-  backdrop-filter: blur(10px);
 }
 .glass-hover {
-  transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 .glass-hover:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.045);
-  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+  border-color: #d6d8de;
+  box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.25);
   transform: translateY(-2px);
 }
 
-/* Accent text — single restrained hue */
+/* Accent text */
 .gradient-text {
   color: var(--accent);
 }
 
-/* Primary button — solid, understated */
+/* Primary button — solid accent */
 .btn-primary {
   background: var(--accent);
-  color: #04140e;
+  color: #ffffff;
   font-weight: 600;
   transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
-  box-shadow: 0 6px 20px -10px rgba(16, 185, 129, 0.5);
+  box-shadow: 0 6px 18px -10px rgba(5, 150, 105, 0.5);
 }
-.btn-primary:hover { background: #0ea371; box-shadow: 0 8px 26px -10px rgba(16, 185, 129, 0.6); }
+.btn-primary:hover { background: var(--accent-2); }
 .btn-primary:active { transform: translateY(1px); }
-.btn-primary:disabled { opacity: 0.5; box-shadow: none; }
+.btn-primary:disabled { opacity: 0.45; box-shadow: none; }
 
-/* Ghost button */
+/* Ghost / secondary button */
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.04);
+  background: #ffffff;
   border: 1px solid var(--border);
   color: var(--foreground);
   transition: background 0.2s, border-color 0.2s;
 }
-.btn-ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); }
+.btn-ghost:hover { background: #f6f7f9; border-color: #d6d8de; }
 
 /* Eyebrow label */
 .eyebrow {
@@ -107,25 +99,22 @@ body {
 }
 .fade-up { animation: fadeUp 0.5s ease both; }
 
-/* glow-pulse kept as a no-op for compatibility (no distracting animation) */
-.glow-pulse {}
-
 /* Inputs */
 .field {
-  background: rgba(255, 255, 255, 0.03);
+  background: #ffffff;
   border: 1px solid var(--border);
   color: var(--foreground);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.field::placeholder { color: rgba(255, 255, 255, 0.28); }
+.field::placeholder { color: #9ca3af; }
 .field:focus {
   outline: none;
-  border-color: rgba(16, 185, 129, 0.6);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
 }
 
 /* Thin custom scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #050609; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+::-webkit-scrollbar-track { background: #ffffff; }
+::-webkit-scrollbar-thumb { background: #d6d8de; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #b9bcc4; }

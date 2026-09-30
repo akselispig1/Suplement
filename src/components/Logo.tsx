@@ -20,7 +20,7 @@ export function LogoMark({ className = "w-8 h-8" }: { className?: string }) {
 
 export default function Logo({ className = "" }: { className?: string }) {
   return (
-    <Link href="/" className={`flex items-center gap-2.5 font-bold text-lg text-white group ${className}`}>
+    <Link href="/" className={`flex items-center gap-2.5 font-bold text-lg text-neutral-900 group ${className}`}>
       <span className="relative flex items-center justify-center">
         <span className="absolute inset-0 rounded-full blur-md bg-emerald-500/20 group-hover:bg-emerald-500/30 transition-colors" />
         <LogoMark className="relative w-8 h-8 group-hover:scale-105 transition-transform" />

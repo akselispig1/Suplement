@@ -1,9 +1,9 @@
 import { EvidenceStrength } from "@/types/product";
 
 const config: Record<EvidenceStrength, { label: string; className: string }> = {
-  strong: { label: "Strong Evidence", className: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25" },
+  strong: { label: "Strong Evidence", className: "bg-emerald-500/15 text-emerald-700 border border-emerald-500/25" },
   moderate: { label: "Moderate Evidence", className: "bg-amber-500/15 text-amber-300 border border-amber-500/25" },
-  emerging: { label: "Emerging Evidence", className: "bg-cyan-500/15 text-cyan-300 border border-cyan-500/25" },
+  emerging: { label: "Emerging Evidence", className: "bg-cyan-500/15 text-cyan-700 border border-cyan-500/25" },
 };
 
 export default function EvidenceBadge({ strength }: { strength: EvidenceStrength }) {

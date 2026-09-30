@@ -80,15 +80,15 @@ export default function ProductsPage() {
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="glow glow-emerald w-80 h-80 -top-32 right-0 opacity-20" />
       <div className="relative mb-8">
-        <div className="eyebrow text-emerald-400 mb-3">Catalog</div>
-        <h1 className="text-4xl font-bold text-white mb-4">All Products</h1>
+        <div className="eyebrow text-emerald-600 mb-3">Catalog</div>
+        <h1 className="text-4xl font-bold text-neutral-900 mb-4">All Products</h1>
         <EvidenceLegend />
       </div>
 
       {/* Toolbar: search + sorted dropdowns */}
       <div className="relative glass rounded-2xl p-3 mb-6 flex flex-col md:flex-row md:items-center gap-3">
         <div className="relative flex-1 min-w-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <input
             type="text"
             value={search}
@@ -107,9 +107,9 @@ export default function ProductsPage() {
 
       {/* Active filter row */}
       <div className="relative flex items-center gap-3 mb-6 flex-wrap">
-        <p className="text-sm text-white/40 font-mono">{filtered.length} products</p>
+        <p className="text-sm text-neutral-400 font-mono">{filtered.length} products</p>
         {hasFilters && (
-          <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors">
+          <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 transition-colors">
             <X className="w-3.5 h-3.5" /> Clear filters
           </button>
         )}
@@ -131,9 +131,9 @@ export default function ProductsPage() {
         </div>
       )}
       {filtered.length === 0 && (
-        <div className="text-center py-20 text-white/40">
+        <div className="text-center py-20 text-neutral-400">
           <p className="text-lg font-medium">No products found</p>
-          <button onClick={clearFilters} className="mt-3 text-emerald-400 hover:underline text-sm">Clear filters</button>
+          <button onClick={clearFilters} className="mt-3 text-emerald-600 hover:underline text-sm">Clear filters</button>
         </div>
       )}
     </div>
@@ -157,16 +157,16 @@ function Dropdown({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`field appearance-none rounded-xl pl-3.5 pr-9 py-2.5 text-sm cursor-pointer ${capitalize ? "capitalize" : ""} ${active && value ? "!border-emerald-500/50 text-white" : "text-white/70"}`}
+        className={`field appearance-none rounded-xl pl-3.5 pr-9 py-2.5 text-sm cursor-pointer ${capitalize ? "capitalize" : ""} ${active && value ? "!border-emerald-500/50 text-neutral-900" : "text-neutral-600"}`}
       >
         {!noAll && <option value="">{label}: All</option>}
         {opts.map((o) => (
-          <option key={o.value} value={o.value} className="bg-[#0b0d12] text-white">
+          <option key={o.value} value={o.value} className="bg-white text-neutral-900">
             {noAll ? o.label : o.label}
           </option>
         ))}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
     </div>
   );
 }

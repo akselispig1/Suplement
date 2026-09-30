@@ -30,17 +30,17 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       <div className="glow glow-emerald w-80 h-80 -top-32 -left-20 opacity-20" />
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         {/* Image */}
-        <div className="relative rounded-3xl h-80 overflow-hidden bg-gradient-to-b from-white to-neutral-100 border border-white/10">
+        <div className="relative rounded-3xl h-80 overflow-hidden bg-gradient-to-b from-white to-neutral-100 border border-neutral-200">
           <ProductImg product={p_} className="w-full h-full object-contain p-8" />
         </div>
 
         {/* Details */}
         <div className="flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-medium text-white/60 glass px-2.5 py-1 rounded-full">{p_.category}</span>
+            <span className="text-xs font-medium text-neutral-500 glass px-2.5 py-1 rounded-full">{p_.category}</span>
             <EvidenceBadge strength={p_.evidenceStrength} />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">{p_.name}</h1>
+          <h1 className="text-3xl font-bold text-neutral-900 mb-3">{p_.name}</h1>
           <p className="text-[var(--muted)] mb-5 leading-relaxed">{p_.longDescription}</p>
 
           <div className="grid grid-cols-2 gap-3 text-sm mb-5">
@@ -51,16 +51,16 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               { label: "Brand", value: p_.brandLabel },
             ].map((s) => (
               <div key={s.label} className="glass rounded-xl p-3">
-                <div className="eyebrow text-white/40 mb-1">{s.label}</div>
-                <div className={`font-medium text-white ${s.cap ? "capitalize" : ""}`}>{s.value}</div>
+                <div className="eyebrow text-neutral-400 mb-1">{s.label}</div>
+                <div className={`font-medium text-neutral-900 ${s.cap ? "capitalize" : ""}`}>{s.value}</div>
               </div>
             ))}
           </div>
 
           <div className="flex items-baseline gap-3 mb-5">
-            <span className="text-3xl font-bold text-white">CHF {p_.priceCHF.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-neutral-900">CHF {p_.priceCHF.toFixed(2)}</span>
             {p_.compareAtPriceCHF && (
-              <span className="text-lg text-white/30 line-through">CHF {p_.compareAtPriceCHF.toFixed(2)}</span>
+              <span className="text-lg text-neutral-400 line-through">CHF {p_.compareAtPriceCHF.toFixed(2)}</span>
             )}
           </div>
 
@@ -68,7 +68,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             onClick={handleAdd}
             disabled={!p_.inStock}
             className={`flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all mb-4 ${
-              !p_.inStock ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5" : "btn-primary"
+              !p_.inStock ? "bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-100" : "btn-primary"
             }`}
           >
             {added ? <><Check className="w-5 h-5" /> Added to Cart</> : <><ShoppingCart className="w-5 h-5" /> {p_.inStock ? "Add to Cart" : "Out of Stock"}</>}
@@ -86,10 +86,10 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       {/* Goals */}
       {p_.bestFor.length > 0 && (
         <div className="relative mb-10">
-          <h2 className="text-xl font-bold text-white mb-3">Best for</h2>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">Best for</h2>
           <div className="flex flex-wrap gap-2">
             {p_.bestFor.map((g) => (
-              <span key={g} className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 px-3 py-1 rounded-full text-sm font-medium capitalize">{g}</span>
+              <span key={g} className="bg-emerald-500/15 text-emerald-700 border border-emerald-500/25 px-3 py-1 rounded-full text-sm font-medium capitalize">{g}</span>
             ))}
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       {/* Pairs with */}
       {pairs.length > 0 && (
         <div className="relative">
-          <h2 className="text-xl font-bold text-white mb-4">Pairs well with</h2>
+          <h2 className="text-xl font-bold text-neutral-900 mb-4">Pairs well with</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {pairs.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>

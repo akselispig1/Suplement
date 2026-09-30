@@ -13,10 +13,10 @@ export default function AboutPage() {
 
       {/* Hero */}
       <div className="relative text-center mb-16 fade-up">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-[0_0_30px_-4px_rgba(16,185,129,0.7)]">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-[0_0_30px_-4px_rgba(16,185,129,0.7)]">
           <Leaf className="w-8 h-8 text-[#04120f]" />
         </div>
-        <h1 className="text-5xl font-bold text-white mb-4">About <span className="gradient-text">SuppStack</span></h1>
+        <h1 className="text-5xl font-bold text-neutral-900 mb-4">About <span className="gradient-text">SuppStack</span></h1>
         <p className="text-xl text-[var(--muted)] max-w-2xl mx-auto leading-relaxed">
           Getting the right supplements should be simple, honest, and backed by real science — not marketing hype.
         </p>
@@ -24,7 +24,7 @@ export default function AboutPage() {
 
       {/* Mission */}
       <div className="relative glass rounded-3xl p-8 md:p-12 mb-12">
-        <h2 className="text-2xl font-bold text-white mb-4">Our mission</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-4">Our mission</h2>
         <p className="text-[var(--muted)] text-lg leading-relaxed mb-4">
           The supplement industry is noisy. Thousands of products, exaggerated claims, and confusing labels make it hard to know what actually works. SuppStack cuts through that.
         </p>
@@ -35,7 +35,7 @@ export default function AboutPage() {
 
       {/* What makes us different */}
       <div className="relative mb-16">
-        <h2 className="text-2xl font-bold text-white mb-8 text-center">What makes us different</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-8 text-center">What makes us different</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             {
@@ -60,10 +60,10 @@ export default function AboutPage() {
             },
           ].map((item) => (
             <div key={item.title} className="glass glass-hover rounded-2xl p-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 border border-emerald-500/30 text-emerald-300 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400/20 to-emerald-600/20 border border-emerald-500/30 text-emerald-700 flex items-center justify-center mb-4">
                 {item.icon}
               </div>
-              <h3 className="font-bold text-white mb-2">{item.title}</h3>
+              <h3 className="font-bold text-neutral-900 mb-2">{item.title}</h3>
               <p className="text-[var(--muted)] text-sm leading-relaxed">{item.text}</p>
             </div>
           ))}
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
       {/* Catalog categories */}
       <div className="relative mb-16">
-        <h2 className="text-2xl font-bold text-white mb-4">What we carry</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-4">What we carry</h2>
         <p className="text-[var(--muted)] mb-6">200+ products across 18 categories — from the everyday essentials to the cutting-edge.</p>
         <div className="flex flex-wrap gap-2">
           {[
@@ -82,7 +82,7 @@ export default function AboutPage() {
             "Heart & Circulation", "Longevity & Cellular", "Hair, Skin & Nails",
             "Energy & Metabolism", "Hydration & Electrolytes", "Women's & Men's Health",
           ].map((cat) => (
-            <span key={cat} className="glass px-3 py-1.5 rounded-full text-sm font-medium text-white/70">
+            <span key={cat} className="glass px-3 py-1.5 rounded-full text-sm font-medium text-neutral-600">
               {cat}
             </span>
           ))}
@@ -93,8 +93,8 @@ export default function AboutPage() {
       <div className="relative glass rounded-3xl p-8 md:p-12 mb-12 overflow-hidden">
         <div className="glow glow-cyan w-64 h-64 -bottom-24 -right-16 opacity-30" />
         <div className="relative flex items-center gap-3 mb-6">
-          <Heart className="w-6 h-6 text-emerald-400" />
-          <h2 className="text-2xl font-bold text-white">Our commitments</h2>
+          <Heart className="w-6 h-6 text-emerald-600" />
+          <h2 className="text-2xl font-bold text-neutral-900">Our commitments</h2>
         </div>
         <ul className="relative space-y-4 text-[var(--muted)]">
           {[
@@ -106,7 +106,7 @@ export default function AboutPage() {
             "Everything ships as one package — we handle the logistics so you don't have to.",
           ].map((c) => (
             <li key={c} className="flex items-start gap-3">
-              <span className="text-emerald-400 mt-0.5 shrink-0">✓</span>
+              <span className="text-emerald-600 mt-0.5 shrink-0">✓</span>
               <span>{c}</span>
             </li>
           ))}
@@ -115,7 +115,7 @@ export default function AboutPage() {
 
       {/* CTA */}
       <div className="relative text-center">
-        <h2 className="text-2xl font-bold text-white mb-3">Ready to build your stack?</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-3">Ready to build your stack?</h2>
         <p className="text-[var(--muted)] mb-6">Use AI to get personalised suggestions, or browse the full catalog yourself.</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/#ai-recommend" className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl">

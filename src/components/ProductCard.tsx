@@ -37,22 +37,22 @@ export default function ProductCard({ product, reason, showSelect, selected, onT
         </div>
         <div className="p-4 flex flex-col gap-2 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-white text-sm leading-snug">{product.name}</h3>
+            <h3 className="font-semibold text-neutral-900 text-sm leading-snug">{product.name}</h3>
             <EvidenceBadge strength={product.evidenceStrength} />
           </div>
-          <p className="text-[11px] text-emerald-300/70 font-medium">{product.category}</p>
+          <p className="text-[11px] text-emerald-700/70 font-medium">{product.category}</p>
           <p className="text-xs text-[var(--muted)] line-clamp-2">{product.shortDescription}</p>
           {reason && (
-            <p className="text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2 py-1.5 leading-relaxed">{reason}</p>
+            <p className="text-xs text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2 py-1.5 leading-relaxed">{reason}</p>
           )}
           <div className="mt-auto pt-2 flex items-center justify-between">
             <div>
-              <span className="font-bold text-white">CHF {product.priceCHF.toFixed(2)}</span>
+              <span className="font-bold text-neutral-900">CHF {product.priceCHF.toFixed(2)}</span>
               {product.compareAtPriceCHF && (
-                <span className="ml-2 text-xs text-white/30 line-through">CHF {product.compareAtPriceCHF.toFixed(2)}</span>
+                <span className="ml-2 text-xs text-neutral-400 line-through">CHF {product.compareAtPriceCHF.toFixed(2)}</span>
               )}
             </div>
-            <span className="text-xs text-white/40 font-mono">{product.form}</span>
+            <span className="text-xs text-neutral-400 font-mono">{product.form}</span>
           </div>
         </div>
       </Link>
@@ -70,7 +70,7 @@ export default function ProductCard({ product, reason, showSelect, selected, onT
             onClick={handleAdd}
             disabled={!product.inStock}
             className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1 ${
-              !product.inStock ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5" : "btn-primary"
+              !product.inStock ? "bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-100" : "btn-primary"
             }`}
           >
             {added ? <><Check className="w-3.5 h-3.5" /> Added</> : <><ShoppingCart className="w-3.5 h-3.5" /> {product.inStock ? "Add to Cart" : "Out of Stock"}</>}

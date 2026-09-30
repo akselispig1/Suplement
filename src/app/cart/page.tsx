@@ -72,8 +72,8 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <ShoppingBag className="w-16 h-16 text-white/10 mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-white mb-2">Your cart is empty</h1>
+        <ShoppingBag className="w-16 h-16 text-neutral-200 mx-auto mb-4" />
+        <h1 className="text-2xl font-bold text-neutral-900 mb-2">Your cart is empty</h1>
         <p className="text-[var(--muted)] mb-6">Find your perfect supplement stack</p>
         <Link href="/products" className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-xl">
           Shop Products <ArrowRight className="w-4 h-4" />
@@ -85,7 +85,7 @@ export default function CartPage() {
   return (
     <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="glow glow-cyan w-72 h-72 -top-24 right-0 opacity-20" />
-      <h1 className="relative text-4xl font-bold text-white mb-8">Checkout</h1>
+      <h1 className="relative text-4xl font-bold text-neutral-900 mb-8">Checkout</h1>
 
       <form onSubmit={handleCheckout} className="relative">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -95,36 +95,36 @@ export default function CartPage() {
             <div className="space-y-3">
               {items.map(({ product, quantity }) => (
                 <div key={product.id} className="glass rounded-2xl p-4 flex gap-4 items-center">
-                  <div className="w-14 h-14 rounded-xl bg-white border border-white/10 overflow-hidden shrink-0">
+                  <div className="w-14 h-14 rounded-xl bg-white border border-neutral-200 overflow-hidden shrink-0">
                     <ProductImg product={product} className="w-full h-full object-contain p-1.5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <Link href={`/products/${product.slug}`} className="font-semibold text-white hover:text-emerald-400 text-sm line-clamp-1 transition-colors">{product.name}</Link>
-                    <p className="text-xs text-white/40 mt-0.5 font-mono">{product.form} · {product.servingSize}</p>
-                    <p className="text-sm font-bold text-white mt-1">CHF {(product.priceCHF * quantity).toFixed(2)}</p>
+                    <Link href={`/products/${product.slug}`} className="font-semibold text-neutral-900 hover:text-emerald-600 text-sm line-clamp-1 transition-colors">{product.name}</Link>
+                    <p className="text-xs text-neutral-400 mt-0.5 font-mono">{product.form} · {product.servingSize}</p>
+                    <p className="text-sm font-bold text-neutral-900 mt-1">CHF {(product.priceCHF * quantity).toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <button type="button" onClick={() => updateQty(product.id, quantity - 1)} className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-colors text-white">
+                    <button type="button" onClick={() => updateQty(product.id, quantity - 1)} className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 hover:bg-neutral-100 flex items-center justify-center transition-colors text-neutral-900">
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="w-6 text-center text-sm font-medium text-white">{quantity}</span>
-                    <button type="button" onClick={() => updateQty(product.id, quantity + 1)} className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-colors text-white">
+                    <span className="w-6 text-center text-sm font-medium text-neutral-900">{quantity}</span>
+                    <button type="button" onClick={() => updateQty(product.id, quantity + 1)} className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 hover:bg-neutral-100 flex items-center justify-center transition-colors text-neutral-900">
                       <Plus className="w-3 h-3" />
                     </button>
-                    <button type="button" onClick={() => removeItem(product.id)} className="ml-1 p-1.5 text-white/30 hover:text-red-400 transition-colors">
+                    <button type="button" onClick={() => removeItem(product.id)} className="ml-1 p-1.5 text-neutral-400 hover:text-red-400 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               ))}
               <div className="text-right">
-                <button type="button" onClick={clearCart} className="text-xs text-white/40 hover:text-red-400 transition-colors">Clear all</button>
+                <button type="button" onClick={clearCart} className="text-xs text-neutral-400 hover:text-red-400 transition-colors">Clear all</button>
               </div>
             </div>
 
             {/* Delivery details */}
             <div className="glass rounded-2xl p-6">
-              <h2 className="font-bold text-white mb-4">Delivery details</h2>
+              <h2 className="font-bold text-neutral-900 mb-4">Delivery details</h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Full name" required value={form.customerName} onChange={(v) => set("customerName", v)} placeholder="Anna Müller" />
@@ -142,32 +142,32 @@ export default function CartPage() {
           {/* Right: order summary */}
           <div className="lg:col-span-1">
             <div className="glass rounded-2xl p-6 sticky top-24">
-              <h2 className="font-bold text-white mb-4">Order Summary</h2>
+              <h2 className="font-bold text-neutral-900 mb-4">Order Summary</h2>
               <div className="space-y-2 text-sm mb-4">
                 {items.map(({ product, quantity }) => (
                   <div key={product.id} className="flex justify-between text-[var(--muted)]">
                     <span className="line-clamp-1 flex-1 mr-2">{product.name} ×{quantity}</span>
-                    <span className="text-white/80">CHF {(product.priceCHF * quantity).toFixed(2)}</span>
+                    <span className="text-neutral-700">CHF {(product.priceCHF * quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-white/10 pt-4 space-y-2 mb-2 text-sm">
+              <div className="border-t border-neutral-200 pt-4 space-y-2 mb-2 text-sm">
                 <div className="flex justify-between text-[var(--muted)]">
                   <span>Subtotal</span>
-                  <span className="text-white/80">CHF {total.toFixed(2)}</span>
+                  <span className="text-neutral-700">CHF {total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-[var(--muted)]">
                   <span>Shipping</span>
-                  <span className={shipping === 0 ? "text-emerald-400 font-medium" : "text-white/80"}>
+                  <span className={shipping === 0 ? "text-emerald-600 font-medium" : "text-neutral-700"}>
                     {shipping === 0 ? "FREE" : `CHF ${shipping.toFixed(2)}`}
                   </span>
                 </div>
-                <div className="flex justify-between font-bold pt-2 border-t border-white/10">
-                  <span className="text-white">Total</span>
+                <div className="flex justify-between font-bold pt-2 border-t border-neutral-200">
+                  <span className="text-neutral-900">Total</span>
                   <span className="gradient-text text-lg">CHF {(total + shipping).toFixed(2)}</span>
                 </div>
               </div>
-              <p className="text-xs text-white/40 mb-5">
+              <p className="text-xs text-neutral-400 mb-5">
                 {shipping === 0
                   ? `Includes free shipping (orders over CHF ${FREE_SHIPPING_OVER_CHF}).`
                   : `Total includes CHF ${SHIPPING_FEE_CHF.toFixed(2)} shipping. Free over CHF ${FREE_SHIPPING_OVER_CHF} — add CHF ${(FREE_SHIPPING_OVER_CHF - total).toFixed(2)} more to qualify.`}
@@ -175,10 +175,10 @@ export default function CartPage() {
 
               {/* TWINT badge */}
               <div className="flex items-center gap-2 glass rounded-xl px-3 py-2 mb-4">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-md flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-md flex items-center justify-center shrink-0">
                   <span className="text-[#04120f] font-black text-xs">T</span>
                 </div>
-                <span className="text-sm text-white font-medium">Pay with TWINT</span>
+                <span className="text-sm text-neutral-900 font-medium">Pay with TWINT</span>
               </div>
 
               {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
@@ -193,20 +193,20 @@ export default function CartPage() {
                     {stockIssues.map((iss) => (
                       <div key={iss.productId} className="text-xs">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-white/80"><span className="line-through text-white/40">{iss.productName}</span> — {iss.reason}</span>
-                          <button onClick={() => removeItem(iss.productId)} className="text-white/50 hover:text-red-400 shrink-0">Remove</button>
+                          <span className="text-neutral-700"><span className="line-through text-neutral-400">{iss.productName}</span> — {iss.reason}</span>
+                          <button onClick={() => removeItem(iss.productId)} className="text-neutral-500 hover:text-red-400 shrink-0">Remove</button>
                         </div>
                         {iss.replacements.length > 0 && (
                           <div className="mt-1.5 space-y-1">
-                            <p className="text-white/40">Replace with:</p>
+                            <p className="text-neutral-400">Replace with:</p>
                             {iss.replacements.map((r) => (
                               <button
                                 key={r.id}
                                 onClick={() => swapReplacement(iss.productId, r)}
-                                className="w-full flex items-center justify-between gap-2 rounded-lg border border-white/10 hover:border-emerald-500/50 bg-white/[0.03] px-2.5 py-1.5 text-left transition-colors"
+                                className="w-full flex items-center justify-between gap-2 rounded-lg border border-neutral-200 hover:border-emerald-500/50 bg-neutral-50 px-2.5 py-1.5 text-left transition-colors"
                               >
-                                <span className="text-white/80 line-clamp-1">{r.name}</span>
-                                <span className="text-emerald-400 font-medium shrink-0">CHF {r.priceCHF.toFixed(2)} →</span>
+                                <span className="text-neutral-700 line-clamp-1">{r.name}</span>
+                                <span className="text-emerald-600 font-medium shrink-0">CHF {r.priceCHF.toFixed(2)} →</span>
                               </button>
                             ))}
                           </div>
@@ -224,7 +224,7 @@ export default function CartPage() {
                 {loading ? <span className="animate-spin w-4 h-4 border-2 border-[#04120f] border-t-transparent rounded-full" /> : null}
                 {loading ? "Processing…" : "Place Order →"}
               </button>
-              <p className="text-xs text-center text-white/40 mt-3">You&apos;ll get TWINT payment instructions next</p>
+              <p className="text-xs text-center text-neutral-400 mt-3">You&apos;ll get TWINT payment instructions next</p>
             </div>
           </div>
         </div>
@@ -239,7 +239,7 @@ function Field({ label, value, onChange, placeholder, required, type = "text" }:
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-white/60 mb-1">{label}{required && <span className="text-emerald-400 ml-0.5">*</span>}</label>
+      <label className="block text-xs font-semibold text-neutral-500 mb-1">{label}{required && <span className="text-emerald-600 ml-0.5">*</span>}</label>
       <input
         type={type}
         required={required}

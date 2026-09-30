@@ -28,10 +28,15 @@ export default function AiChat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll only the messages container — never the whole page — and skip the
+    // very first render so the page doesn't jump to the chat on load.
+    if (!started.current) { started.current = true; return; }
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
 
   async function send(text: string) {
@@ -66,18 +71,18 @@ export default function AiChat() {
   return (
     <div className="glass rounded-3xl overflow-hidden flex flex-col" style={{ height: "min(70vh, 640px)" }}>
       {/* header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/10">
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-neutral-200">
         <span className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <Sparkles className="w-4 h-4 text-emerald-600" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-white leading-tight">Supplement adviser</p>
+          <p className="text-sm font-semibold text-neutral-900 leading-tight">Supplement adviser</p>
           <p className="text-xs text-[var(--muted)] leading-tight">Chat about your goals — recommendations appear inline</p>
         </div>
       </div>
 
       {/* messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-5">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-5 space-y-5">
         {messages.map((m, i) => (
           <div key={i}>
             <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -85,7 +90,7 @@ export default function AiChat() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   m.role === "user"
                     ? "bg-emerald-500 text-[#04140e] font-medium"
-                    : "bg-white/[0.05] border border-white/10 text-white/90"
+                    : "bg-neutral-50 border border-neutral-200 text-neutral-800"
                 }`}
               >
                 {m.content}
@@ -102,7 +107,7 @@ export default function AiChat() {
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white/[0.05] border border-white/10 rounded-2xl px-4 py-3 flex gap-1.5">
+            <div className="bg-neutral-50 border border-neutral-200 rounded-2xl px-4 py-3 flex gap-1.5">
               <span className="w-2 h-2 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "0ms" }} />
               <span className="w-2 h-2 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "150ms" }} />
               <span className="w-2 h-2 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -110,7 +115,6 @@ export default function AiChat() {
           </div>
         )}
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-        <div ref={endRef} />
       </div>
 
       {/* starters */}
@@ -120,7 +124,7 @@ export default function AiChat() {
             <button
               key={s}
               onClick={() => send(s)}
-              className="text-xs text-white/70 border border-white/10 hover:border-emerald-500/40 hover:text-white rounded-full px-3 py-1.5 transition-colors"
+              className="text-xs text-neutral-600 border border-neutral-200 hover:border-emerald-500/40 hover:text-neutral-900 rounded-full px-3 py-1.5 transition-colors"
             >
               {s}
             </button>
@@ -131,7 +135,7 @@ export default function AiChat() {
       {/* input */}
       <form
         onSubmit={(e) => { e.preventDefault(); send(input); }}
-        className="p-3 border-t border-white/10 flex gap-2"
+        className="p-3 border-t border-neutral-200 flex gap-2"
       >
         <input
           value={input}
